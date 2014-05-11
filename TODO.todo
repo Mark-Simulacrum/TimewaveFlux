@@ -1,0 +1,25 @@
+--- Add 'pressure' to sides and add/subtract from firstDay depending on side.
+	- Elements on each side; on mouse over../on ??
+	- Make sure to update scrollbars/scrollbar show.. etc
+-- Interfaces for changing
+	+- Start
+	- Deadline
+	- ?days per page?
+- Add a way to more easily add new projects
+- Saving data to file/localStorage (between sessions)
+	- Examine ways of doing this
+		- Cookies?
+: Dad assigns:
+
++-- Remove leading / trailing 0s from dayLoad(s)
+---- Allow moving past deadline & start (which doesn't currently exist) w/ ctrl
+	- Used w/ & w/o shift
+--- Add now
+--- Add saving (and loading) of projects
+	- Versioning : Allow backtracking
+-- Highlight/emphasize boundaries of project when moving, in any way.
+
+
++---- If project is moved while 'shift' is pressed, move whole project. :Whole project means every single day of the project.
+	- Do this by modifying project.start ; at least, that is the current plan.
++- Don't show hour seperator on hover if dragging

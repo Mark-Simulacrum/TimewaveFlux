@@ -3,11 +3,65 @@
 <head>
 	<title>Calendar Project</title>
 	<link rel="stylesheet" href="stylesheet.css">
-	<script src="javascript.js"></script>
+	<script src="Project.js"></script>
+	<script>
+		var projects = [
+			new Project({
+				name: 'Project #1',
+				deadline: 1,
+				size: 1,
+				color: 'lightblue',
+			}),
+			new Project({
+				name: 'Project #2',
+				deadline: 1,
+				size: 1,
+				color: '#BADA55',
+			}),
+			new Project({
+				name: 'Project #3',
+				deadline: 3,
+				size: 5,
+				color: 'cyan',
+				dayLoad: [3, 2]
+			}),
+			new Project({
+				name: 'Project #4',
+				deadline: 5,
+				size: 5,
+				color: 'rgba(0,0,0,0.2)',
+				dayLoad: [1, 0, 2, 2]
+			}),
+			new Project({
+				name: '#5 Pressure Test',
+				deadline: 10,
+				size: 10,
+				color: '#BADA55',
+				dayLoad: [0, 1, 0, 0, 1, 5, 3]
+			})
+		];
+	</script>
+	<script src="helpers.js"></script>
+	<script src="main.js"></script>
 	<script src="prefixfree.min.js"></script>
 </head>
 <body>
-	<div id="projects"></div>
-	<canvas id='background'>Javascript malfunctioned.</canvas>
+	<canvas id='canvas'></canvas>
+	<div id="dialog">
+		<p>
+			<p style="color: #BADA55;">New Project</p>
+			<p>Project Name: <input class=name type=text /></p>
+			<p>Project Deadline: <input min=0 class=deadline type=number /></p>
+			<p>Project Size: <input min=1 class=size type=number /></p>
+			<p>Project Color: <input class=color type=color /></p>
+			<button id='new-project-create'>Create</button>
+		</p>
+	</div>
+	<footer>
+		&nbsp;firstDay: <input type='number' min=0 id='scrollvalue' />
+		Days Per Page: <input min=1 id='days_page' type='number' />
+		<button id='new-project'>Add New Project</button>
+		<input id='scrollbar' type='range' />
+	</footer>
 </body>
 </html>
