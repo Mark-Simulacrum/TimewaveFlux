@@ -1,25 +1,54 @@
---- Add 'pressure' to sides and add/subtract from firstDay depending on side.
-	- Elements on each side; on mouse over../on ??
-	- Make sure to update scrollbars/scrollbar show.. etc
--- Interfaces for changing
-	+- Start
-	- Deadline
-	- ?days per page?
-- Add a way to more easily add new projects
-- Saving data to file/localStorage (between sessions)
-	- Examine ways of doing this
-		- Cookies?
-: Dad assigns:
-
-+-- Remove leading / trailing 0s from dayLoad(s)
----- Allow moving past deadline & start (which doesn't currently exist) w/ ctrl
-	- Used w/ & w/o shift
---- Add now
 --- Add saving (and loading) of projects
-	- Versioning : Allow backtracking
--- Highlight/emphasize boundaries of project when moving, in any way.
+	+-- Warn user if leaving unsaved page : Stop them!
+	+- Versioning : Allow backtracking
+	+- Autosave
+--- Done Project Cross out ><
+	+- By work unit
+	+- Only leftmost can be crossed out
+	+--- Work Done input fill with clicked amount
+	+- Input accepts :
+		#h
+		#m
+		## (<15 h; >=15 m)
+		1h25m
+	+- See if a line under the >< looks better
+	+- Make sure input does not exceed remaining work units.
++--- Change hours into minutes (by 15minute dayLoad) Minute height of 20px #workUnit
++--- Change project info to only title
+	- Modify day info cycle to stop if not enough space.
+---- Change the daysPerPage input to increase and decrease daysPerPage evenly on both sides (actual zoom!)
+--- Add selected project interface (also moused)
+	+- Selected stores amount of minutes clicked, and day clicked.
+	- Goes with GUI showing details of project, as well as buttons for modifying it
+		- This GUI has these elements:
+			+- Delete Project tie this into hours
+			+- Delete/Add day hours
+			- What's to the left and to the right of the current FOV
+			+- Basic Project Information (deadline, start, name, amount of work done/totalWork)
+			+- Spread project todo hours over future (>=now) evenly
 
-
-+---- If project is moved while 'shift' is pressed, move whole project. :Whole project means every single day of the project.
-	- Do this by modifying project.start ; at least, that is the current plan.
-+- Don't show hour seperator on hover if dragging
+			+Should update whenever one of these elements changes, but DO NOT do this like we do firstDay and daysPerPage
+	+- Clear Selected project info when deselect
++--- Moused project shown in Selected Project info area, unless a project is selected
++--- Change Day title into Month day (year?)
+	+- YYYY/MM/DD day of week under it
+	+- moment.js?
++--- Add method to determine total amount of work units in project
+	-- And already done work units
+!----- Refactor Code
+	+--- Clean up firstDay and daysPerPage
+	+--- Make a better footer and header#addOne?
+	--- Look through everything and clean what can be cleaned :)
+	---- TestEverything
+--- If too many hours in day, show it!
++--- Notification area
+--- Replace range value/scrollbar with youtube style red bar, dots for each month, whole calendar
+	- Now + 1y = totalCalendarDayCount
++--- Change minute delimeters to show when dragging
+	+- Show on all days of moving project
+	+- Do not show on other projects
++--- Multiunit project days, the last line should show day hours: 1.5/3.25 (workDone/workTotal)
+	- http://symbolcodes.tlt.psu.edu/bylanguage/mathchart.html#fractions
+-- Perhaps convert saveableProjects() into JSON replacer function:
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_native_JSON#The_replacer_parameter
+	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify

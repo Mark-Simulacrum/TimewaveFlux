@@ -1,0 +1,110 @@
+@keyframes flash {
+	0%   { transform: scale(1); }
+	50% { transform: scale(1.1); }
+	100% { transform: scale(1); }
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	height: 100%;
+	font-family: Consolas, monaco, monospace;
+}
+
+body {
+	margin: 0;
+}
+
+footer {
+	position: absolute;
+	left: 0;
+	right: 0;
+
+	padding: 0 1em;
+	display: table-cell;
+	section {
+		$rightMargin: 0.5em;
+		position: relative;
+		width: 33%;
+		height: 140px;
+		padding: 0.2em $rightMargin 0.2em;
+		float: left;
+		overflow: auto;
+
+		&:nth-child(2) {
+			border-left: 1px solid black;
+			border-right: 1px solid black;
+		}
+		&.notification {
+			padding-left: 0.5em;
+			overflow-y: auto;
+			white-space: normal;
+		}
+		.projectMod {
+			float: right;
+		}
+		.selected { // Only for id=deadline or id=start
+			color: green;
+			font-weight: bold;
+		}
+		.center {
+			margin: 0 auto;
+			text-align: center;
+		}
+		.right {
+			// text-align: right;
+			float: right;
+		}
+		#version {
+			position: absolute;
+			bottom: 0;
+			right: $rightMargin;
+		}
+	}
+}
+
+input.date {
+	width: 11ex;
+	text-align: center;
+}
+
+input[type=file] {
+	display: none;
+}
+
+#day_amount {
+	width: 3em;
+}
+
+.noSelect {
+	user-select: none;
+}
+
+.noWrap {
+	white-space: nowrap;
+}
+
+#tooltip {
+	display: none;
+	background-color: black;
+	color: white;
+	font-size: 0.8em;
+	position: absolute;
+	margin: 0.3em; // So that top/left: #px actually sets the top/left sides
+ 	padding: 0.3em;
+	border-radius: 0.3em;
+
+	transform: translate(-50%);
+}
+
+#firstDayScrollbar {
+	width: 100%;
+	margin: 0;
+	display: block;
+}
+
+canvas {
+	display: block;
+}
