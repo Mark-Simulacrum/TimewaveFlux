@@ -260,6 +260,9 @@ function drawScroll()
 {
 	headerCtx.clearRect(0, 0, headerCtx.canvas.clientWidth, headerCtx.canvas.clientHeight);
 
+	headerCtx.fillStyle = 'black';
+	headerCtx.fillRect(0, dateline.dotY, headerCtx.canvas.width, borderWidth);
+
 	for (var dotNumber = 0; dotNumber < dateline.midPoint; dotNumber++) // To the left
 	{
 		drawPoint(dotNumber, -1);
@@ -286,12 +289,6 @@ function drawPoint(dotNumber, side)
 	if (side > 0)
 	{
 		x = headerCtx.canvas.width - x;
-	}
-
-	if (dotNumber === 0)
-	{
-		headerCtx.fillStyle = 'black';
-		headerCtx.fillRect(0, dateline.dotY, headerCtx.canvas.width, borderWidth);
 	}
 
 	if (dotNumber == dateline.midPoint - 1 && side < 0)
@@ -340,22 +337,12 @@ function drawPoint(dotNumber, side)
 		text = currentMoment.format(dateline.dayFormat);
 	}
 
-	if (side < 0)
-	{
-		dateline.text[dotNumber] = text;
-		dateline.areas[dotNumber] = [x - dateline.interval / 2, x + dateline.interval / 2];
-		dateline.dayDifference[dotNumber] = differenceInDays;
-		dateline.dotX[dotNumber] = x;
-		dateline.dotType[dotNumber] = type;
-	}
-	else
-	{
-		dateline.text[dotNumber + dateline.midPoint] = text;
-		dateline.areas[dotNumber + dateline.midPoint] = [x - dateline.interval / 2, x + dateline.interval / 2];
-		dateline.dayDifference[dotNumber + dateline.midPoint] = differenceInDays;
-		dateline.dotX[dotNumber + dateline.midPoint] = x;
-		dateline.dotType[dotNumber + dateline.midPoint] = type;
-	}
+	var sidedDotNumber = side < 0 ? dotNumber : dotNumber + dateline.midPoint;
+	dateline.text[sidedDotNumber] = text;
+	dateline.areas[sidedDotNumber] = [x - dateline.interval / 2, x + dateline.interval / 2];
+	dateline.dotX[sidedDotNumber] = x;
+	dateline.dotType[sidedDotNumber] = type;
+	dateline.dayDifference[sidedDotNumber] = differenceInDays;
 
 	headerCtx.beginPath();
 	headerCtx.arc(x, dateline.dotY, Math.ceil(dateline.dotSize * dotSizeModifier), 0, Math.PI * 2);
