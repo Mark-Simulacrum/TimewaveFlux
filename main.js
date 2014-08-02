@@ -30,11 +30,7 @@ var dateline = {
 	dayDots: 3,
 	dayFormat: 'ddd',
 	scaleCanvasWidth: 1,
-	areas: [],
-	dotX: [],
-	text: [],
-	dayDifference: [],
-	dotType: [],
+	dots: [],
 	get dotSize()
 	{
 		return Math.floor(headerCtx.canvas.clientHeight / 4);
@@ -62,19 +58,19 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function getDatelineDot(x)
 {
-	for (var i = 0; i < dateline.areas.length; i++)
+	for (var i = 0; i < dateline.dots.length; i++)
 	{
-		if (dateline.areas[i][0] < x && x < dateline.areas[i][1])
+		if (dateline.dots[i].areas[0] < x && x < dateline.dots[i].areas[1])
 		{
 			var distanceFromDot = 0;
 
-			if (x < dateline.dotX[i] - dateline.dotSize)
+			if (x < dateline.dots[i].x - dateline.dotSize)
 			{
-				distanceFromDot = dateline.dotX[i] - dateline.dotSize - x;
+				distanceFromDot = dateline.dots[i].x - dateline.dotSize - x;
 			}
-			else if (x > dateline.dotX[i] + dateline.dotSize)
+			else if (x > dateline.dots[i].x + dateline.dotSize)
 			{
-				distanceFromDot = dateline.dotX[i] + dateline.dotSize - x;
+				distanceFromDot = dateline.dots[i].x + dateline.dotSize - x;
 			}
 
 			return {
@@ -92,18 +88,18 @@ function getDatelineDayDifference(x)
 	var clickedData = getDatelineDot(x);
 	if (clickedData)
 	{
-		var dotDayDifference = dateline.dayDifference[clickedData.dotNumber];
-		if (clickedData.onDot || dateline.dotType[clickedData.dotNumber] == 'day')
+		var dotDayDifference = dateline.dots[clickedData.dotNumber].dayDifference;
+		if (clickedData.onDot || dateline.dots[clickedData.dotNumber].type == 'day')
 		{
 			return dotDayDifference;
 		}
 		else
 		{
-			if (dateline.dotType[clickedData.dotNumber] == 'week')
+			if (dateline.dots[clickedData.dotNumber].type == 'week')
 			{
 				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
 			}
-			else if (dateline.dotType[clickedData.dotNumber] == 'month')
+			else if (dateline.dots[clickedData.dotNumber].type == 'month')
 			{
 				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
 			}
@@ -261,13 +257,52 @@ function drawScroll()
 	headerCtx.clearRect(0, 0, headerCtx.canvas.clientWidth, headerCtx.canvas.clientHeight);
 
 	headerCtx.fillStyle = 'black';
-	headerCtx.fillRect(0, dateline.dotY, headerCtx.canvas.width, borderWidth);
+	var datelineCenterX = dateline.startPoint + dateline.interval * dateline.midPoint;
+	headerCtx.fillRect(0, dateline.dotY, datelineCenterX - dateline.interval / 2, borderWidth);
+	headerCtx.fillRect(datelineCenterX + dateline.interval / 2, dateline.dotY, headerCtx.canvas.clientWidth - datelineCenterX, borderWidth);
+
+	//	var lastX = dateline.startPoint + dateline.interval / 2;
 
 	for (var dotNumber = 0; dotNumber < dateline.midPoint; dotNumber++) // To the left
 	{
 		drawPoint(dotNumber, -1);
-		drawPoint(dotNumber, +1);
 	}
+
+	var x = dateline.startPoint + dateline.interval / 2;
+
+	for (dotNumber = 0; dotNumber < dateline.midPoint; dotNumber++)
+	{
+		dateline.dots[dotNumber].x = x;
+
+		drawDot(dotNumber, -1);
+		drawDot(dotNumber, +1);
+
+		x += dateline.interval;
+	}
+}
+
+function drawDot(dotNumber, side)
+{
+	var x = dateline.dots[dotNumber].x;
+
+	if (side > 0)
+	{
+		x = headerCtx.canvas.width - x;
+	}
+
+	var sidedDotNumber = side < 0 ? dotNumber : dotNumber + dateline.midPoint;
+	dateline.dots[sidedDotNumber].areas = [x - dateline.interval / 2, x + dateline.interval / 2];
+
+	headerCtx.beginPath();
+	headerCtx.fillStyle = dateline.dots[sidedDotNumber].color;
+	headerCtx.arc(x, dateline.dotY, Math.ceil(dateline.dotSize * dateline.dots[sidedDotNumber].modifier), 0, Math.PI * 2);
+	headerCtx.closePath();
+	headerCtx.fill();
+
+	headerCtx.fillStyle = 'black';
+	headerCtx.textAlign = 'center';
+	headerCtx.textBaseline = 'middle';
+	headerCtx.fillText(dateline.dots[sidedDotNumber].text, x, dateline.dotY + dateline.dotSize * 2);
 }
 
 function getCurrentDay()
@@ -277,43 +312,37 @@ function getCurrentDay()
 
 function drawPoint(dotNumber, side)
 {
-	var x = dotNumber * dateline.interval + dateline.startPoint + dateline.interval / 2;
-	var dotSizeModifier = 1;
+	if (side < 0)
+	{
+		drawPoint(dotNumber, 1); // Draw the mirrored point
+	}
+
+	var dotModifier = 1;
 	var text = '';
-	var type = '';
+	var dotType = '';
 	var differenceInDays = 0;
+	var color;
 	var dayDelta;
 
 	var currentDay = getCurrentDay();
 
-	if (side > 0)
-	{
-		x = headerCtx.canvas.width - x;
-	}
-
-	if (dotNumber == dateline.midPoint - 1 && side < 0)
-	{
-		headerCtx.clearRect(x, dateline.dotY, dateline.interval, borderWidth);
-	}
-
 	if (dotNumber < dateline.monthDots)
 	{
-		headerCtx.fillStyle = 'blue';
+		color = 'blue';
 
 		dayDelta = side * (dateline.monthDots - dotNumber);
 		currentMoment = toMoment(currentDay).add('month', dayDelta);
 		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
 
 		text = currentMoment.format(dateline.monthFormat);
-		type = 'month';
-
+		dotType = 'month';
 	}
 	else if (dotNumber < dateline.monthDots + dateline.weekDots)
 	{
-		headerCtx.fillStyle = 'red';
-		dotSizeModifier = 0.7;
+		color = 'red';
+		dotModifier = 1;
 
-		type = 'week';
+		dotType = 'week';
 
 		dayDelta = side * (dateline.monthDots + dateline.weekDots - dotNumber);
 		currentMoment = toMoment(currentDay).add('week', dayDelta);
@@ -325,10 +354,10 @@ function drawPoint(dotNumber, side)
 	}
 	else if (dotNumber < dateline.monthDots + dateline.weekDots + dateline.dayDots)
 	{
-		headerCtx.fillStyle = 'green';
-		dotSizeModifier = 0.5;
+		color = 'green';
+		dotModifier = 0.5;
 
-		type = 'day';
+		dotType = 'day';
 
 		dayDelta = side * (dateline.monthDots + dateline.weekDots + dateline.dayDots - dotNumber);
 		currentMoment = toMoment(currentDay).add('day', dayDelta);
@@ -338,21 +367,15 @@ function drawPoint(dotNumber, side)
 	}
 
 	var sidedDotNumber = side < 0 ? dotNumber : dotNumber + dateline.midPoint;
-	dateline.text[sidedDotNumber] = text;
-	dateline.areas[sidedDotNumber] = [x - dateline.interval / 2, x + dateline.interval / 2];
-	dateline.dotX[sidedDotNumber] = x;
-	dateline.dotType[sidedDotNumber] = type;
-	dateline.dayDifference[sidedDotNumber] = differenceInDays;
-
-	headerCtx.beginPath();
-	headerCtx.arc(x, dateline.dotY, Math.ceil(dateline.dotSize * dotSizeModifier), 0, Math.PI * 2);
-	headerCtx.closePath();
-	headerCtx.fill();
-
-	headerCtx.fillStyle = 'black';
-	headerCtx.textAlign = 'center';
-	headerCtx.textBaseline = 'middle';
-	headerCtx.fillText(text, x, dateline.dotY + dateline.dotSize * 2);
+	dateline.dots[sidedDotNumber] = {
+		text: text,
+		areas: [null, null], //[x - dateline.interval / 2, x + dateline.interval / 2],
+		x: null,
+		type: dotType,
+		modifier: dotModifier,
+		dayDifference: differenceInDays,
+		color: color
+	};
 }
 
 function drawBorder(dayNo)
