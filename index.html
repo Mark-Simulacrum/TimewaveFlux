@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>ProjectFlow</title>
 	<link rel="stylesheet" href="css/stylesheet.css">
@@ -13,10 +14,10 @@
 	<script defer src="libraries/moment-with-langs.js"></script>
 	<script defer src="libraries/FileSaver.js"></script>
 </head>
+
 <body>
-	<!-- <div id='tooltip'></div> -->
-	 <canvas id='header-canvas' height="40"></canvas>
-<!--	<div><input id='firstDayScrollbar' type='range' min='0' /></div>-->
+	<div id='tooltip'></div>
+	<canvas id='header-canvas' height="30"></canvas>
 	<canvas id='main-canvas'></canvas>
 	<footer>
 		<section class='project'>
@@ -32,13 +33,15 @@
 				for <span id='customer_name'></span>
 			</div>
 			<div class='noWrap'>
-				from <input class='date' id='start' type="text" />
-				to <input class='date' id="deadline" type="text" />
+				from
+				<input class='date' id='start' type="text" />to
+				<input class='date' id="deadline" type="text" />
 				<button id="change_start-deadline">Change</button>
 			</div>
 			<div class='noWrap'>
 				Hours: <span id='hours'>?/?</span>
-				<div class="right">Days: <span id='days'>?/?</span></div>
+				<div class="right">Days: <span id='days'>?/?</span>
+				</div>
 			</div>
 			<div class='noWrap'>
 				<input id='workInput' type='text' placeholder='#h#m' />
@@ -59,7 +62,7 @@
 					<button id="date_add_31">+31</button>
 				</div>
 				<div class='noWrap'>
-					<input min='1' step='1' type='number' id='day_amount' /> days
+					<input min='1' step='1' type='number' id='day_amount' />days
 				</div>
 			</div>
 			<div class='center'>
@@ -76,4 +79,7 @@
 		<section class='notification'></section>
 	</footer>
 </body>
+
 </html>
+
+

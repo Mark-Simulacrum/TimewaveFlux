@@ -22,14 +22,100 @@ var now = 3;
 var firstDay = now;
 var daysPerPage = 11;
 
+var dateline = {
+	monthDots: 6,
+	monthFormat: 'MMM',
+	weekDots: 2,
+	weekFormat: '[w]w',
+	dayDots: 3,
+	dayFormat: 'ddd',
+	scaleCanvasWidth: 1,
+	areas: [],
+	dotX: [],
+	text: [],
+	dayDifference: [],
+	dotType: [],
+	get dotSize()
+	{
+		return Math.floor(headerCtx.canvas.clientHeight / 4);
+	},
+	get dotY()
+	{
+		return dateline.dotSize + borderWidth;
+	},
+	get interval()
+	{
+		return (screenWidth * dateline.scaleCanvasWidth) / dateline.sections;
+	},
+	get startPoint()
+	{
+		return (screenWidth - dateline.interval * dateline.sections) / 2;
+	}
+};
+
+dateline.sections = (dateline.monthDots + dateline.weekDots + dateline.dayDots) * 2;
+dateline.midPoint = Math.floor(dateline.sections / 2);
+
 var debug = true;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
+function getDatelineDot(x)
+{
+	for (var i = 0; i < dateline.areas.length; i++)
+	{
+		if (dateline.areas[i][0] < x && x < dateline.areas[i][1])
+		{
+			var distanceFromDot = 0;
+
+			if (x < dateline.dotX[i] - dateline.dotSize)
+			{
+				distanceFromDot = dateline.dotX[i] - dateline.dotSize - x;
+			}
+			else if (x > dateline.dotX[i] + dateline.dotSize)
+			{
+				distanceFromDot = dateline.dotX[i] + dateline.dotSize - x;
+			}
+
+			return {
+				dotNumber: i,
+				onDot: distanceFromDot === 0,
+				distanceFromDot: Math.floor(distanceFromDot)
+			};
+		}
+	}
+	return null;
+}
+
+function getDatelineDayDifference(x)
+{
+	var clickedData = getDatelineDot(x);
+	if (clickedData)
+	{
+		var dotDayDifference = dateline.dayDifference[clickedData.dotNumber];
+		if (clickedData.onDot || dateline.dotType[clickedData.dotNumber] == 'day')
+		{
+			return dotDayDifference;
+		}
+		else
+		{
+			if (dateline.dotType[clickedData.dotNumber] == 'week')
+			{
+				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
+			}
+			else if (dateline.dotType[clickedData.dotNumber] == 'month')
+			{
+				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
+			}
+		}
+	}
+
+	return 0; // Return 0 by default
+}
+
 function init()
 {
 	footer = document.querySelector('footer');
-	//	scrollbar = document.getElementById('firstDayScrollbar');
 	headerCtx = document.getElementById('header-canvas').getContext('2d');
 	ctx = document.getElementById('main-canvas').getContext('2d');
 
@@ -54,14 +140,20 @@ function init()
 	window.addEventListener('resize', onResizeWindow, false);
 	onResizeWindow(); // Call this to initially set all the DOM sizes.
 
-	// headerCtx.canvas.addEventListener('mousemove', function (mouseEvent) {
-	// 	// headerCtx.canvas.setAttribute('title', mouseEvent.x);
-	// 	tooltip(screenWidth/2, scrollbarHeight, mouseEvent.x);
-	// }, false);
+	headerCtx.canvas.addEventListener('mousemove', function (mouseEvent)
+	{
+		tooltip(screenWidth / 2, headerCtx.canvas.clientHeight, 'Selected change in first day: ' + (getDatelineDayDifference(mouseEvent.pageX || mouseEvent.clientX)));
+	}, false);
 
-	// headerCtx.canvas.addEventListener('mouseleave', function () {
-	// 	clearTooltip();
-	// }, false);
+	headerCtx.canvas.addEventListener('click', function (mouseEvent)
+	{
+		updateFirstDay(firstDay + getDatelineDayDifference(mouseEvent.pageX || mouseEvent.clientX));
+	}, false);
+
+	headerCtx.canvas.addEventListener('mouseleave', function ()
+	{
+		clearTooltip();
+	}, false);
 
 	ctx.canvas.addEventListener('mousedown', function (mouseEvent)
 	{
@@ -81,14 +173,14 @@ function init()
 				'load': Math.ceil(mouseLoad / 15) * 15, // the current 15 minute section of project (and below)
 				'shift': mouseEvent.shiftKey,
 				'ctrl': mouseEvent.ctrlKey,
-			}
+			};
 
 			selectedProject = {
 				'project': project,
 				'dayClicked': dayNo,
 				'load': mouseLoad - mouseLoad % 15, // Makes mouseLoad in 15 min divisible chunks
 				'ctrl': mouseEvent.ctrlKey
-			}
+			};
 
 			addSelectedInfo(project);
 
@@ -126,7 +218,10 @@ function init()
 
 		if (moused && (moused.project != project || moused.day != dayNo))
 		{ // If we changed days or projects, we need to erase the old lines.
-			if (!selectedProject) clearSelectedInfo();
+			if (!selectedProject)
+			{
+				clearSelectedInfo();
+			}
 			moused = null;
 			draw();
 		}
@@ -163,121 +258,114 @@ function draw()
 
 function drawScroll()
 {
-
-	// Dots per side
-	var monthDots = 6;
-	var weekDots = 2;
-	var dayDots = 3;
-
-	var sections = (monthDots + weekDots + dayDots) * 2;
-
-	var sizeModifier = 1;
-	var interval = (screenWidth * sizeModifier) / sections;
-	var startPoint = (screenWidth - interval * sections) / 2;
-	var dotSize = headerCtx.canvas.clientHeight / 2 / 3;
-
 	headerCtx.clearRect(0, 0, headerCtx.canvas.clientWidth, headerCtx.canvas.clientHeight);
 
-	var midPoint = Math.floor(sections / 2);
-
-	for (var dotNumber = 0; dotNumber < midPoint; dotNumber++) // To the left
+	for (var dotNumber = 0; dotNumber < dateline.midPoint; dotNumber++) // To the left
 	{
-		var x = dotNumber * interval + startPoint + interval / 2;
-		var dotSizeModifier = 1;
-		var text = "rr";
+		drawPoint(dotNumber, -1);
+		drawPoint(dotNumber, +1);
+	}
+}
 
-		if (dotNumber < monthDots)
-		{
-			headerCtx.fillStyle = 'blue';
-			text = toMoment(firstDay).clone().subtract('month', monthDots - dotNumber).format("MMM");
-		}
-		else if (dotNumber < monthDots + weekDots)
-		{
-			headerCtx.fillStyle = 'red';
-			dotSizeModifier = 0.7;
-		}
-		else if (dotNumber < monthDots + weekDots + dayDots)
-		{
-			headerCtx.fillStyle = 'green';
-			dotSizeModifier = 0.5;
-		}
-		else
-		{
-			headerCtx.fillStyle = 'black';
-		}
+function getCurrentDay()
+{
+	return firstDay + Math.floor(daysPerPage / 2);
+}
 
-		headerCtx.moveTo(x, headerCtx.canvas.height / 2);
-		headerCtx.beginPath();
-		headerCtx.arc(x, headerCtx.canvas.height / 2 / 2, Math.ceil(dotSize * dotSizeModifier), 0, Math.PI * 2);
-		headerCtx.closePath();
-		headerCtx.fill();
+function drawPoint(dotNumber, side)
+{
+	var x = dotNumber * dateline.interval + dateline.startPoint + dateline.interval / 2;
+	var dotSizeModifier = 1;
+	var text = '';
+	var type = '';
+	var differenceInDays = 0;
+	var dayDelta;
 
-		headerCtx.fillStyle = 'black';
-		headerCtx.moveTo(x, headerCtx.canvas.height / 2);
-		headerCtx.textAlign = 'center';
-		headerCtx.textBaseline = 'center';
-		headerCtx.fillText(text, x, headerCtx.canvas.height - headerCtx.canvas.height / 3);
+	var currentDay = getCurrentDay();
+
+	if (side > 0)
+	{
+		x = headerCtx.canvas.width - x;
 	}
 
-	for (dotNumber = sections; dotNumber >= midPoint; dotNumber--) // To the right
+	if (dotNumber === 0)
 	{
-		var x = dotNumber * interval + startPoint + interval / 2;
-		var dotSizeModifier = 1;
-		var text = "rr";
-
-		if (dotNumber >= sections - monthDots)
-		{
-			headerCtx.fillStyle = 'blue';
-			text = toMoment(firstDay).clone().subtract('month', monthDots - dotNumber).format("MMM");
-		}
-		else if (dotNumber >= sections - monthDots - weekDots)
-		{
-			headerCtx.fillStyle = 'red';
-			dotSizeModifier = 0.7;
-		}
-		else if (dotNumber >= sections - monthDots - weekDots - dayDots)
-		{
-			headerCtx.fillStyle = 'green';
-			dotSizeModifier = 0.5;
-		}
-		else
-		{
-			headerCtx.fillStyle = 'black';
-		}
-
-		headerCtx.moveTo(x, headerCtx.canvas.height / 2);
-		headerCtx.beginPath();
-		headerCtx.arc(x, headerCtx.canvas.height / 2 / 2, Math.ceil(dotSize * dotSizeModifier), 0, Math.PI * 2);
-		headerCtx.closePath();
-		headerCtx.fill();
-
 		headerCtx.fillStyle = 'black';
-		headerCtx.moveTo(x, headerCtx.canvas.height / 2);
-		headerCtx.textAlign = 'center';
-		headerCtx.textBaseline = 'center';
-		headerCtx.fillText(text, x, headerCtx.canvas.height - headerCtx.canvas.height / 3);
+		headerCtx.fillRect(0, dateline.dotY, headerCtx.canvas.width, borderWidth);
 	}
 
-	//	for (var i = 0; i < sections; i++) {
-	//		var x = i * interval;
-	//		var text = "";
-	//		
-	//		if (i <= inYear || i >= sections - inYear) {
-	//			text = "inY";
-	//		} else if (i <= inWeek || i >= sections - inWeek) {
-	//			text = "inW";
-	//			
-	//		} else if (i <= inMonth || i >= sections - inMonth) {
-	//			text = "inM";
-	//		}
-	//		
-	//		headerCtx.fillStyle = 'black';
-	//		headerCtx.moveTo(x, headerCtx.canvas.height / 2);
-	//		headerCtx.textAlign = 'center';
-	//		headerCtx.textBaseline = 'center';
-	//		//monthMoment = firstDayMoment.clone().subtract('month', 6);
-	//		headerCtx.fillText(text, x, headerCtx.canvas.height - headerCtx.canvas.height / 3);
-	//	}
+	if (dotNumber == dateline.midPoint - 1 && side < 0)
+	{
+		headerCtx.clearRect(x, dateline.dotY, dateline.interval, borderWidth);
+	}
+
+	if (dotNumber < dateline.monthDots)
+	{
+		headerCtx.fillStyle = 'blue';
+
+		dayDelta = side * (dateline.monthDots - dotNumber);
+		currentMoment = toMoment(currentDay).add('month', dayDelta);
+		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
+
+		text = currentMoment.format(dateline.monthFormat);
+		type = 'month';
+
+	}
+	else if (dotNumber < dateline.monthDots + dateline.weekDots)
+	{
+		headerCtx.fillStyle = 'red';
+		dotSizeModifier = 0.7;
+
+		type = 'week';
+
+		dayDelta = side * (dateline.monthDots + dateline.weekDots - dotNumber);
+		currentMoment = toMoment(currentDay).add('week', dayDelta);
+
+		text = currentMoment.format(dateline.weekFormat);
+
+		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
+
+	}
+	else if (dotNumber < dateline.monthDots + dateline.weekDots + dateline.dayDots)
+	{
+		headerCtx.fillStyle = 'green';
+		dotSizeModifier = 0.5;
+
+		type = 'day';
+
+		dayDelta = side * (dateline.monthDots + dateline.weekDots + dateline.dayDots - dotNumber);
+		currentMoment = toMoment(currentDay).add('day', dayDelta);
+
+		differenceInDays = currentMoment.startOf('day').diff(toMoment(currentDay), 'days');
+		text = currentMoment.format(dateline.dayFormat);
+	}
+
+	if (side < 0)
+	{
+		dateline.text[dotNumber] = text;
+		dateline.areas[dotNumber] = [x - dateline.interval / 2, x + dateline.interval / 2];
+		dateline.dayDifference[dotNumber] = differenceInDays;
+		dateline.dotX[dotNumber] = x;
+		dateline.dotType[dotNumber] = type;
+	}
+	else
+	{
+		dateline.text[dotNumber + dateline.midPoint] = text;
+		dateline.areas[dotNumber + dateline.midPoint] = [x - dateline.interval / 2, x + dateline.interval / 2];
+		dateline.dayDifference[dotNumber + dateline.midPoint] = differenceInDays;
+		dateline.dotX[dotNumber + dateline.midPoint] = x;
+		dateline.dotType[dotNumber + dateline.midPoint] = type;
+	}
+
+	headerCtx.beginPath();
+	headerCtx.arc(x, dateline.dotY, Math.ceil(dateline.dotSize * dotSizeModifier), 0, Math.PI * 2);
+	headerCtx.closePath();
+	headerCtx.fill();
+
+	headerCtx.fillStyle = 'black';
+	headerCtx.textAlign = 'center';
+	headerCtx.textBaseline = 'middle';
+	headerCtx.fillText(text, x, dateline.dotY + dateline.dotSize * 2);
 }
 
 function drawBorder(dayNo)
@@ -295,13 +383,16 @@ function drawBorder(dayNo)
 function drawProjects(dayNo)
 {
 	var foundProjects = getProjects(dayNo);
-	if (clicked && clicked.project && !foundProjects.contains(clicked.project)) foundProjects.push(clicked.project);
+	if (clicked && clicked.project && !foundProjects.contains(clicked.project))
+	{
+		foundProjects.push(clicked.project);
+	}
 	var offsetTop = headerSize;
 
 	for (var i = 0; i < foundProjects.length; i++)
 	{
 		offsetTop = foundProjects[i].draw(dayNo, offsetTop); // Returns the new offsetTop
-	};
+	}
 }
 
 function drawDays()
@@ -312,9 +403,10 @@ function drawDays()
 
 	for (var dayNo = firstDay; dayNo < lastDay; dayNo++)
 	{
+		var oldColor;
 		if (dayNo < now)
 		{
-			var oldColor = ctx.fillStyle;
+			oldColor = ctx.fillStyle;
 			ctx.fillStyle = 'lightgray';
 			ctx.fillRect(dayStart(dayNo), 0, dayWidth(), ctx.canvas.height);
 			ctx.fillStyle = oldColor;
@@ -322,7 +414,7 @@ function drawDays()
 
 		if (clicked && clicked.project.start() <= dayNo && dayNo <= clicked.project.deadline)
 		{
-			var oldColor = ctx.fillStyle;
+			oldColor = ctx.fillStyle;
 			ctx.fillStyle = 'rgba(0, 153, 74, 0.2)';
 			ctx.fillRect(dayStart(dayNo), 0, dayWidth(), ctx.canvas.height);
 			ctx.fillStyle = oldColor;
@@ -336,7 +428,7 @@ function drawDays()
 
 		drawProjects(dayNo);
 		drawBorder(dayNo);
-	};
+	}
 
 	// Draw lines across
 	ctx.fillStyle = 'black';
@@ -350,15 +442,21 @@ function drawDays()
 
 function assert(condition)
 {
-	if (!condition) throw 'Assertion Failed!';
+	if (!condition)
+	{
+		throw 'Assertion Failed!';
+	}
 }
 
 function everythingIsOkay()
 {
 	for (var i = projects.length - 1; i >= 0; i--)
 	{
-		if (!projects[i].test()) return false;
-	};
+		if (!projects[i].test())
+		{
+			return false;
+		}
+	}
 
 	assert(firstDay >= 0);
 
