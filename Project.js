@@ -57,7 +57,7 @@ Project.prototype.maxX = function (dayNo) {
 }
 
 Project.prototype.maxY = function (dayNo) {
-	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo);
+	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo) + headerCtx.canvas.clientHeight;
 }
 
 Project.prototype.height = function(dayNo) {
