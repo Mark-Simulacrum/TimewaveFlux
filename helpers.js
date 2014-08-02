@@ -92,7 +92,7 @@ function getProjectByCoordinates(x, y)
 {
 	var dayNo = getDay(x);
 	var foundProjects = getProjects(dayNo);
-	for (var i = foundProjects.length - 1; i >= 0; i--)
+	for (var i = 0; i < foundProjects.length; i++)
 	{
 		var project = foundProjects[i];
 		var relativeDayNo = project.relativeDayNo(dayNo);
