@@ -10,14 +10,14 @@ var mouse = {
 var dayCount = 365 * 100;
 
 // In Pixels
-var headerSize = 20;
+var dayTitleHeight = 20;
 var borderWidth = 1;
 var workUnitHeight = 1; // 1 work units == 1 min of height
 var minimumWork = 20;
 
 var daySize = 8 * 60; // In minutes
-var calendarStart = '2014/08/01';
 var calendarFormat = 'YYYY/MM/DD';
+var calendarStart = '2014/08/01';
 var now = 3;
 var firstDay = now;
 var daysPerPage = 11;
@@ -52,62 +52,9 @@ var dateline = {
 dateline.sections = (dateline.monthDots + dateline.weekDots + dateline.dayDots) * 2;
 dateline.midPoint = Math.floor(dateline.sections / 2);
 
-var debug = true;
+var debug = false;
 
 document.addEventListener('DOMContentLoaded', init, false);
-
-function getDatelineDot(x)
-{
-	for (var i = 0; i < dateline.dots.length; i++)
-	{
-		if (dateline.dots[i].areas[0] < x && x < dateline.dots[i].areas[1])
-		{
-			var distanceFromDot = 0;
-
-			if (x < dateline.dots[i].x - dateline.dotSize)
-			{
-				distanceFromDot = dateline.dots[i].x - dateline.dotSize - x;
-			}
-			else if (x > dateline.dots[i].x + dateline.dotSize)
-			{
-				distanceFromDot = dateline.dots[i].x + dateline.dotSize - x;
-			}
-
-			return {
-				dotNumber: i,
-				onDot: distanceFromDot === 0,
-				distanceFromDot: Math.floor(distanceFromDot)
-			};
-		}
-	}
-	return null;
-}
-
-function getDatelineDayDifference(x)
-{
-	var clickedData = getDatelineDot(x);
-	if (clickedData)
-	{
-		var dotDayDifference = dateline.dots[clickedData.dotNumber].dayDifference;
-		if (clickedData.onDot || dateline.dots[clickedData.dotNumber].type == 'day')
-		{
-			return dotDayDifference;
-		}
-		else
-		{
-			if (dateline.dots[clickedData.dotNumber].type == 'week')
-			{
-				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
-			}
-			else if (dateline.dots[clickedData.dotNumber].type == 'month')
-			{
-				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
-			}
-		}
-	}
-
-	return 0; // Return 0 by default
-}
 
 function init()
 {
@@ -180,7 +127,7 @@ function init()
 
 			addSelectedInfo(project);
 
-			// setTimeout(draw, 800); // setTimeout prevents clicked from being shown if we aren't actually dragging, just selecting.
+			//			setTimeout(draw, 800); // setTimeout prevents clicked from being shown if we aren't actually dragging, just selecting.
 			draw();
 		}
 		else if (selectedProject)
@@ -261,11 +208,10 @@ function drawScroll()
 	headerCtx.fillRect(0, dateline.dotY, datelineCenterX - dateline.interval / 2, borderWidth);
 	headerCtx.fillRect(datelineCenterX + dateline.interval / 2, dateline.dotY, headerCtx.canvas.clientWidth - datelineCenterX, borderWidth);
 
-	//	var lastX = dateline.startPoint + dateline.interval / 2;
-
 	for (var dotNumber = 0; dotNumber < dateline.midPoint; dotNumber++) // To the left
 	{
-		drawPoint(dotNumber, -1);
+		calculatePoint(dotNumber, -1);
+		calculatePoint(dotNumber, +1);
 	}
 
 	var x = dateline.startPoint + dateline.interval / 2;
@@ -292,6 +238,7 @@ function drawDot(dotNumber, side)
 
 	var sidedDotNumber = side < 0 ? dotNumber : dotNumber + dateline.midPoint;
 	dateline.dots[sidedDotNumber].areas = [x - dateline.interval / 2, x + dateline.interval / 2];
+	dateline.dots[sidedDotNumber].x = x;
 
 	headerCtx.beginPath();
 	headerCtx.fillStyle = dateline.dots[sidedDotNumber].color;
@@ -310,13 +257,8 @@ function getCurrentDay()
 	return firstDay + Math.floor(daysPerPage / 2);
 }
 
-function drawPoint(dotNumber, side)
+function calculatePoint(dotNumber, side)
 {
-	if (side < 0)
-	{
-		drawPoint(dotNumber, 1); // Draw the mirrored point
-	}
-
 	var dotModifier = 1;
 	var text = '';
 	var dotType = '';
@@ -340,7 +282,7 @@ function drawPoint(dotNumber, side)
 	else if (dotNumber < dateline.monthDots + dateline.weekDots)
 	{
 		color = 'red';
-		dotModifier = 1;
+		dotModifier = 0.75;
 
 		dotType = 'week';
 
@@ -350,11 +292,10 @@ function drawPoint(dotNumber, side)
 		text = currentMoment.format(dateline.weekFormat);
 
 		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
-
 	}
 	else if (dotNumber < dateline.monthDots + dateline.weekDots + dateline.dayDots)
 	{
-		color = 'green';
+		color = '#00b100';
 		dotModifier = 0.5;
 
 		dotType = 'day';
@@ -362,7 +303,7 @@ function drawPoint(dotNumber, side)
 		dayDelta = side * (dateline.monthDots + dateline.weekDots + dateline.dayDots - dotNumber);
 		currentMoment = toMoment(currentDay).add('day', dayDelta);
 
-		differenceInDays = currentMoment.startOf('day').diff(toMoment(currentDay), 'days');
+		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
 		text = currentMoment.format(dateline.dayFormat);
 	}
 
@@ -386,6 +327,10 @@ function drawBorder(dayNo)
 	{
 		ctx.fillStyle = 'red';
 	}
+	if (dayNo == firstDay + daysPerPage)
+	{
+		--x; // Drawing on canvas cannot be done at canvas width.
+	}
 	ctx.fillRect(x, 0, borderWidth, screenHeight);
 	ctx.fillStyle = oldColor;
 }
@@ -397,7 +342,7 @@ function drawProjects(dayNo)
 	{
 		foundProjects.push(clicked.project);
 	}
-	var offsetTop = headerSize;
+	var offsetTop = dayTitleHeight;
 
 	for (var i = 0; i < foundProjects.length; i++)
 	{
@@ -414,27 +359,24 @@ function drawDays()
 	for (var dayNo = firstDay; dayNo < lastDay; dayNo++)
 	{
 		var oldColor;
+		oldColor = ctx.fillStyle;
 		if (dayNo < now)
 		{
-			oldColor = ctx.fillStyle;
 			ctx.fillStyle = 'lightgray';
 			ctx.fillRect(dayStart(dayNo), 0, dayWidth(), ctx.canvas.height);
-			ctx.fillStyle = oldColor;
 		}
 
 		if (clicked && clicked.project.start() <= dayNo && dayNo <= clicked.project.deadline)
 		{
-			oldColor = ctx.fillStyle;
 			ctx.fillStyle = 'rgba(0, 153, 74, 0.2)';
 			ctx.fillRect(dayStart(dayNo), 0, dayWidth(), ctx.canvas.height);
-			ctx.fillStyle = oldColor;
 		}
+		ctx.fillStyle = oldColor;
 
-		ctx.textAlign = 'center';
 		ctx.font = '11pt bold ' + fontStack;
-		// multilineText(dateText(dayNo, true), dayStart(dayNo), 0, dayWidth(), headerSize, 'black');
-		ctx.textBaseline = 'top';
-		ctx.fillText((debug ? dayNo + ' ' : '') + dateText(dayNo, true), dayStart(dayNo) + dayWidth() / 2, 0, dayWidth());
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText((debug ? dayNo + ' ' : '') + dateText(dayNo, true), dayStart(dayNo) + dayWidth() / 2, dayTitleHeight / 2 + borderWidth, dayWidth());
 
 		drawProjects(dayNo);
 		drawBorder(dayNo);
@@ -443,8 +385,8 @@ function drawDays()
 	// Draw lines across
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, screenWidth, borderWidth); // Scrollbar seperator
-	ctx.fillRect(0, headerSize, leftBorder(lastDay), borderWidth); // Header seperator
-	ctx.fillRect(0, daySize * workUnitHeight + headerSize, leftBorder(lastDay), borderWidth); // daySize line
+	ctx.fillRect(0, dayTitleHeight, leftBorder(lastDay), borderWidth); // Header seperator
+	ctx.fillRect(0, daySize * workUnitHeight + dayTitleHeight, leftBorder(lastDay), borderWidth); // daySize line
 	ctx.fillRect(0, ctx.canvas.height - 1, leftBorder(lastDay), borderWidth); // Footer seperator
 
 	drawBorder(lastDay);

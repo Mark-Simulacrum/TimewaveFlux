@@ -1,4 +1,5 @@
-function Project(args) {
+function Project(args)
+{
 	this.name = args.name;
 	this.customer_name = args.customer || 'Unknown Joe';
 	this.deadline = args.deadline;
@@ -10,40 +11,50 @@ function Project(args) {
 	this.y = [];
 }
 
-Project.prototype.start = function () {
+Project.prototype.start = function ()
+{
 	return this.end() - this.dayLoad.length;
 }
 
-Project.prototype.end = function () {
+Project.prototype.end = function ()
+{
 	return this.deadline + 1;
 }
 
-Project.prototype.firstWork = function () {
-	for (var worklessDays = 0; worklessDays < this.dayLoad.length; worklessDays++) {
-		if (this.dayLoad[worklessDays] != 0) {
+Project.prototype.firstWork = function ()
+{
+	for (var worklessDays = 0; worklessDays < this.dayLoad.length; worklessDays++)
+	{
+		if (this.dayLoad[worklessDays] != 0)
+		{
 			return this.start() + worklessDays;
 		}
 	};
 	return this.end(); // Shouldn't happen, unless project is workless (dayLoad = [0..0])
 }
 
-Project.prototype.lastWork = function () {
+Project.prototype.lastWork = function ()
+{
 	return this.firstWork() + this.dayLoadLength() - 1; // Subtract 1 from dayLoadLength to exclude the day of firstWork.
 }
 
-Project.prototype.dayLoadLength = function () {
+Project.prototype.dayLoadLength = function ()
+{
 	return this.dayLoad.trimZeros().length;
 }
 
-Project.prototype.relativeDayNo = function (dayNo) {
+Project.prototype.relativeDayNo = function (dayNo)
+{
 	return dayNo - this.start();
 }
 
-Project.prototype.load = function (dayNo) { // May be called with dayNo that is not in project.dayLoad.
+Project.prototype.load = function (dayNo)
+{ // May be called with dayNo that is not in project.dayLoad.
 	return this.dayLoad[this.relativeDayNo(dayNo)] || 0; // 0 for the cases where dayLoad does not contain that day.
 }
 
-Project.prototype.summary = function () {
+Project.prototype.summary = function ()
+{
 	return [
 		this.name,
 		// 'Size: ' +  this.size,
@@ -52,63 +63,74 @@ Project.prototype.summary = function () {
 	].join('\n');
 }
 
-Project.prototype.maxX = function (dayNo) {
+Project.prototype.maxX = function (dayNo)
+{
 	return dayStart(dayNo) + dayWidth();
 }
 
-Project.prototype.maxY = function (dayNo) {
+Project.prototype.maxY = function (dayNo)
+{
 	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo) + headerCtx.canvas.clientHeight;
 }
 
-Project.prototype.height = function(dayNo) {
+Project.prototype.height = function (dayNo)
+{
 	return this.toHeight(this.load(dayNo));
 }
 
-Project.prototype.toHeight = function(load) {
+Project.prototype.toHeight = function (load)
+{
 	if (load != 0 && load < minimumWork) load = minimumWork; // Sets all project heights to at least minimumWork.
-	return (load / 15) * workUnitHeight*15;
+	return (load / 15) * workUnitHeight * 15;
 }
 
-Project.prototype.draw = function (dayNo, offsetTop) {
+Project.prototype.draw = function (dayNo, offsetTop)
+{
 	assert(offsetTop > 0);
 	var project = this;
 
 	var offsetLeft = dayStart(dayNo);
 	var projectHeight = project.height(dayNo);
 
-
 	var relativeDayNo = project.relativeDayNo(dayNo);
 	var color = selectedProject && project == selectedProject.project ? 'red' : 'black';
 
-	// Don't need to store x b/c it is dayStart(dayNo).
+	// Don't need to store x because it is dayStart(dayNo).
 	project.y[relativeDayNo] = offsetTop;
 
-	if (!projectHeight) {
+	if (!projectHeight)
+	{
 		return offsetTop;
 	}
 
 	// Draws rectangle (project)
 	ctx.fillStyle = project.color;
 	ctx.fillRect(offsetLeft, offsetTop, dayWidth(), projectHeight);
-	ctx.fillStyle = 'black';
 
 	// Top and bottom project seperators
+	ctx.fillStyle = 'black';
 	ctx.fillRect(offsetLeft, offsetTop, dayWidth(), borderWidth);
 	ctx.fillRect(offsetLeft, offsetTop + projectHeight, dayWidth(), borderWidth);
 
 
+	if ((selectedProject && selectedProject.project == this) || (moused && moused.project == this))
+	{
+		this.drawLadder(dayNo);
+	}
 	this.drawHoursDone(dayNo);
-	if (selectedProject && selectedProject.project == this) this.drawLadder(dayNo);
 
 	// Adds text to project
-	// multilineText(project.summary(), offsetLeft, offsetTop, dayWidth(), projectHeight, color);
+	ctx.textAlign = 'center';
 	ctx.textBaseline = 'top';
-	if (projectHeight >= minimumWork) ctx.fillText(project.summary(), offsetLeft + dayWidth()/2, offsetTop, dayWidth());
-
-	if (projectHeight >= minimumWork*2) {
-		var dayLoadStr = workToTime(project.doneLoad(dayNo)) + '/' + workToTime(project.load(dayNo)); // 1.5/3.25 (workDone/workTotal)
-		ctx.textBaseline = 'bottom';
-		ctx.fillText(dayLoadStr, offsetLeft + dayWidth()/2, offsetTop + projectHeight, dayWidth());
+	if (projectHeight >= minimumWork)
+	{
+		ctx.fillText(project.name, offsetLeft + dayWidth() / 2, offsetTop, dayWidth());
+		if (projectHeight >= minimumWork * 2)
+		{
+			var workDoneOutOfTotal = workToTime(project.doneLoad(dayNo)) + '/' + workToTime(project.load(dayNo));
+			ctx.textBaseline = 'bottom';
+			ctx.fillText(workDoneOutOfTotal, offsetLeft + dayWidth() / 2, offsetTop + projectHeight, dayWidth());
+		}
 	}
 
 	offsetTop += projectHeight;
@@ -116,24 +138,28 @@ Project.prototype.draw = function (dayNo, offsetTop) {
 	return offsetTop;
 }
 
-Project.prototype.drawLadder = function (dayNo) {
+Project.prototype.drawLadder = function (dayNo)
+{
 	ctx.fillStyle = 'red';
-	for (var i = 1; i < Math.ceil(this.load(dayNo)/15); i++) { // Divide load by 15 to get 15 minute chunks
+	for (var i = 1; i < Math.ceil(this.load(dayNo) / 15); i++)
+	{ // Divide load by 15 to get 15 minute chunks
 		var x = dayStart(dayNo);
-		var y = this.y[this.relativeDayNo(dayNo)] + i*workUnitHeight*15;
-		var delimeterLength = i % 4 == 0 ? dayWidth() : dayWidth()/10; // For every hour, draw across whole day.
+		var y = this.y[this.relativeDayNo(dayNo)] + i * workUnitHeight * 15;
+		var delimeterLength = i % 4 == 0 ? dayWidth() : dayWidth() / 10; // For every hour, draw across whole day.
 
 		ctx.fillRect(x, y, delimeterLength, borderWidth);
 	};
 	ctx.fillStyle = 'black';
 }
 
-Project.prototype.doneLoad = function (dayNo) {
+Project.prototype.doneLoad = function (dayNo)
+{
 	assert(dayNo <= this.deadline);
 
 	var workDone = this.workDone;
 
-	for (var i = 0; i < this.dayLoad.length && i < this.relativeDayNo(dayNo); i++) {
+	for (var i = 0; i < this.dayLoad.length && i < this.relativeDayNo(dayNo); i++)
+	{
 		workDone -= this.dayLoad[i]; // Remove the amount of work done in that day.
 		if (workDone < 0) return 0;
 	};
@@ -141,13 +167,16 @@ Project.prototype.doneLoad = function (dayNo) {
 	return Math.min(workDone, this.dayLoad[i]); // Does not allow workDone to exceed amount of work in this day.
 }
 
-function test(arg1, arg2) {
+function test(arg1, arg2)
+{
 	return [arg1, arg2];
 }
 
-Project.prototype.loadBefore = function (dayNo, load) {
+Project.prototype.loadBefore = function (dayNo, load)
+{
 	var totalWork = 0;
-	for (var i = 0; i < this.dayLoad.length && i < this.relativeDayNo(dayNo); i++) {
+	for (var i = 0; i < this.dayLoad.length && i < this.relativeDayNo(dayNo); i++)
+	{
 		totalWork += this.dayLoad[i]; // Add the amount of hours done in this day.
 	};
 
@@ -156,15 +185,18 @@ Project.prototype.loadBefore = function (dayNo, load) {
 	return totalWork;
 }
 
-Project.prototype.size = function () {
+Project.prototype.size = function ()
+{
 	var size = 0;
-	for (var i = this.dayLoad.length - 1; i >= 0; i--) {
+	for (var i = this.dayLoad.length - 1; i >= 0; i--)
+	{
 		size += this.dayLoad[i];
 	};
 	return size;
 }
 
-Project.prototype.drawHoursDone = function (dayNo) {
+Project.prototype.drawHoursDone = function (dayNo)
+{
 	var workDone = this.doneLoad(dayNo);
 	if (workDone == 0) return; // Exit if no hours to draw.
 	assert(workDone > 0);
@@ -173,28 +205,34 @@ Project.prototype.drawHoursDone = function (dayNo) {
 	var y = this.y[this.relativeDayNo(dayNo)];
 	var crossHeight = this.toHeight(workDone);
 
-	ctx.beginPath()
-	ctx.setLineDash([0]);
-	ctx.moveTo(x,y);
+	ctx.beginPath();
+	ctx.moveTo(x, y);
 	ctx.lineTo(x + dayWidth(), y + crossHeight);
 	ctx.moveTo(x, y + crossHeight);
 	ctx.lineTo(x + dayWidth(), y);
+	ctx.closePath();
 	ctx.stroke();
 
-	if (workDone != this.load(dayNo)) {
+	if (workDone != this.load(dayNo))
+	{
 		ctx.beginPath();
 		ctx.setLineDash([2]);
 		ctx.moveTo(x + dayWidth(), y + crossHeight);
-		ctx.lineTo(x, y+crossHeight);
+		ctx.lineTo(x, y + crossHeight);
+		ctx.stroke();
+		ctx.setLineDash([0]);
+		ctx.closePath();
 		ctx.stroke();
 	}
 }
 
-Project.prototype.mouseLoad = function (dayNo, y) {
-	return this.load(dayNo) - (y - this.y[this.relativeDayNo(dayNo)] - headerCtx.canvas.clientHeight)/workUnitHeight;
+Project.prototype.mouseLoad = function (dayNo, y)
+{
+	return this.load(dayNo) - (y - this.y[this.relativeDayNo(dayNo)] - headerCtx.canvas.clientHeight) / workUnitHeight;
 };
 
-Project.prototype.updateDayLoad = function (dayNo) {
+Project.prototype.updateDayLoad = function (dayNo)
+{
 	assert(everythingIsOkay());
 
 	if (dayNo == clicked.current) return; // Day did not change, do nothing.
@@ -208,48 +246,69 @@ Project.prototype.updateDayLoad = function (dayNo) {
 	var touchingStart = clicked_current < this.start();
 	var touchingDeadline = (this.deadline - this.lastWork() == 0);
 
-	if (clicked.shift) {
+	if (clicked.shift)
+	{
 		var touchingStart = this.start() == this.firstWork();
 		var touchingDeadline = this.deadline == this.lastWork();
 
-		if (futureChange < 0) { // Moving left
-			if (touchingStart) {
+		if (futureChange < 0)
+		{ // Moving left
+			if (touchingStart)
+			{
 				if (!clicked.ctrl) return; // Change prohibited.
 				this.dayLoad.push(0);
-			} else {
+			}
+			else
+			{
 				this.dayLoad.shift();
 				this.dayLoad.push(0); // Add a 0 to the end of dayLoad, to preserve dayLoad.length.
 			}
-		} else { // Moving right
-			if (touchingDeadline) {
+		}
+		else
+		{ // Moving right
+			if (touchingDeadline)
+			{
 				if (!clicked.ctrl) return; // Change prohibited.
 				this.deadline++;
 				this.dayLoad.unshift(0); // Add to beginning, to preserve dayLoad.length.
-			} else {
+			}
+			else
+			{
 				this.dayLoad.pop(); // Remove last element
 				this.dayLoad.unshift(0); // Add to beginning, to preserve dayLoad.length.
 			}
 		}
-	} else {
+	}
+	else
+	{
 		var touchingStart = clicked_current < this.start();
 		var touchingDeadline = clicked_current > this.deadline;
 
-		if (futureChange < 0) { // Moving left
-			if (touchingStart) {
+		if (futureChange < 0)
+		{ // Moving left
+			if (touchingStart)
+			{
 				if (!clicked.ctrl) return; // Change prohibited.
 				this.dayLoad[0] -= clicked.load;
 				this.dayLoad.unshift(clicked.load);
-			} else {
+			}
+			else
+			{
 				this.dayLoad[this.relativeDayNo(clicked_current)] += clicked.load;
 				this.dayLoad[this.relativeDayNo(clicked_previous)] -= clicked.load;
 			}
-		} else { // Moving right
-			if (touchingDeadline) {
+		}
+		else
+		{ // Moving right
+			if (touchingDeadline)
+			{
 				if (!clicked.ctrl) return; // Change prohibited.
 				this.deadline++;
 				this.dayLoad.push(clicked.load);
 				this.dayLoad[this.relativeDayNo(clicked_previous)] -= clicked.load;
-			} else {
+			}
+			else
+			{
 				this.dayLoad[this.relativeDayNo(clicked_current)] += clicked.load;
 				this.dayLoad[this.relativeDayNo(clicked_previous)] -= clicked.load;
 			}
@@ -264,26 +323,37 @@ Project.prototype.updateDayLoad = function (dayNo) {
 	draw();
 }
 
-Project.prototype.changeStart = function (newStart) {
-	if (newStart != this.start()) {
+Project.prototype.changeStart = function (newStart)
+{
+	if (newStart != this.start())
+	{
 		var startChange = this.start() - newStart;
-		if (newStart < this.start()) {
+		if (newStart < this.start())
+		{
 			var futureStart = this.start();
-			for (var i = 0; i < startChange; i++) {
+			for (var i = 0; i < startChange; i++)
+			{
 				--futureStart;
-				if (futureStart < 0) {
-					notification('Attempted changing of start before start of time, stopped.')
+				if (futureStart < 0)
+				{
+					notification('Attempted changing of project start before the start of time, stopped.')
 					return;
 				}
 				this.dayLoad.unshift(0);
 			};
-		} else { // newStart > this.start() (moving right)
-			for (var i = 0; i < -startChange; i++) { // startChange is negative, so we need to make it positive.
+		}
+		else
+		{ // newStart > this.start() (moving right)
+			for (var i = 0; i < -startChange; i++)
+			{ // startChange is negative, so we need to make it positive.
 				var futureStart = this.start() + i;
-				if (futureStart > this.firstWork()) { // Allow moving start to equal firstWork, and then stop.
-					notification('Cannot move start anymore to the left, because we have hit work.');
+				if (futureStart > this.firstWork())
+				{ // Allow moving start to equal firstWork, and then stop.
+					notification('Cannot move project start to the left, as there is work there.');
 					return;
-				} else {
+				}
+				else
+				{
 					this.dayLoad.shift();
 				}
 			};
@@ -291,26 +361,37 @@ Project.prototype.changeStart = function (newStart) {
 	}
 }
 
-Project.prototype.changeDeadline = function (newDeadline) {
-	if (newDeadline != this.deadline) {
+Project.prototype.changeDeadline = function (newDeadline)
+{
+	if (newDeadline != this.deadline)
+	{
 		var deadlineChange = this.deadline - newDeadline;
-		if (newDeadline < this.deadline) { // Moving deadline left
+		if (newDeadline < this.deadline)
+		{ // Moving deadline left
 			var futureDeadline = this.deadline;
-			for (var i = 0; i < deadlineChange; i++) {
+			for (var i = 0; i < deadlineChange; i++)
+			{
 				--futureDeadline;
-				if (futureDeadline < this.lastWork()) {
-					notification('Cannot move deadline anymore to the left, we have hit work. Stopped.')
+				if (futureDeadline < this.lastWork())
+				{
+					notification('Cannot move deadline to the left, as there is work there. Stopped.')
 					return;
 				}
 				this.dayLoad.pop();
 			};
-		} else { // newDeadline > this.deadline (moving right)
-			for (var i = 0; i < -deadlineChange; i++) { // deadlineChange is negative, so we need to make it positive.
+		}
+		else
+		{ // newDeadline > this.deadline (moving right)
+			for (var i = 0; i < -deadlineChange; i++)
+			{ // deadlineChange is negative, so we need to make it positive.
 				var futureDeadline = this.deadline + i;
-				if (futureDeadline > dayCount) {
+				if (futureDeadline > dayCount)
+				{
 					notification('Deadline has touched the end of time, and shall now be stopped at the end of time.');
 					return;
-				} else {
+				}
+				else
+				{
 					this.dayLoad.push(0);
 				}
 			};
@@ -318,7 +399,8 @@ Project.prototype.changeDeadline = function (newDeadline) {
 	}
 }
 
-Project.prototype.test = function () {
+Project.prototype.test = function ()
+{
 	assert(this.firstWork() >= this.start());
 	assert(this.lastWork() <= this.end());
 	assert(this.lastWork() <= this.deadline);
@@ -331,7 +413,8 @@ Project.prototype.test = function () {
 	assert(this.workDone <= this.size())
 	assert(this.size() > 0);
 
-	for (var i = this.dayLoad.length - 1; i >= 0; i--) {
+	for (var i = this.dayLoad.length - 1; i >= 0; i--)
+	{
 		assert(this.dayLoad[i] != undefined);
 		assert(this.dayLoad[i] != NaN);
 		assert(this.dayLoad[i] >= 0);
@@ -340,7 +423,8 @@ Project.prototype.test = function () {
 	return true;
 }
 
-Project.prototype.spread = function () {
+Project.prototype.spread = function ()
+{
 	var spreadStart = Math.max(this.start(), now);
 	var relativeStart = this.relativeDayNo(spreadStart);
 	var daysToSpread = this.end() - spreadStart;
@@ -348,9 +432,11 @@ Project.prototype.spread = function () {
 	var extraWork = amountSpread % daysToSpread;
 	var amountPerDay = (amountSpread - extraWork) / daysToSpread;
 
-	for (var i = relativeStart; i < this.relativeDayNo(this.end()); i++) {
+	for (var i = relativeStart; i < this.relativeDayNo(this.end()); i++)
+	{
 		this.dayLoad[i] = amountPerDay;
-		if (extraWork > 0) {
+		if (extraWork > 0)
+		{
 			this.dayLoad[i] += 1;
 			--extraWork;
 		}
@@ -360,36 +446,52 @@ Project.prototype.spread = function () {
 	draw();
 }
 
-Project.prototype.changeWork = function (amount) {
+Project.prototype.changeWork = function (amount)
+{
 	assert(selectedProject && selectedProject.project == this);
 
-	if (amount < 0 && -amount >= this.size()) { // Handle deletion of project
-		if (confirm('Do you wish to delete' + this.name + ' entirely?')) {
+	if (amount < 0 && -amount >= this.size())
+	{ // Handle deletion of project
+		if (confirm('Do you wish to delete' + this.name + ' entirely?'))
+		{
 			this.delete();
-		} else {
+		}
+		else
+		{
 			return;
 		}
 	}
 
-	if (amount < 0) { // Handle subtracting work
-		if (-amount > this.load(selectedProject.dayClicked)) {
+	if (amount < 0)
+	{ // Handle subtracting work
+		if (-amount > this.load(selectedProject.dayClicked))
+		{
 			// Check max() of this.firstWork() and now to prevent editing of past.
-			for (var i = this.relativeDayNo(Math.max(this.firstWork(), now)); i < this.dayLoad.length; i++) { // Since dayClicked is less than 0, we should start at firstWork().
-				if (-amount > this.dayLoad[i]) {
+			for (var i = this.relativeDayNo(Math.max(this.firstWork(), now)); i < this.dayLoad.length; i++)
+			{ // Since dayClicked is less than 0, we should start at firstWork().
+				if (-amount > this.dayLoad[i])
+				{
 					amount += this.dayLoad[i]; // Since amount is negative, we need to add to it to decrease it.
 					this.dayLoad[i] = 0;
-				} else {
+				}
+				else
+				{
 					this.dayLoad[i] += amount; // Since amount is negative, we need to add it to dayLoad[i] to decrease dayLoad.
 				}
-				if (amount == 0) {
+				if (amount == 0)
+				{
 					draw();
 					return;
 				}
 			};
-		} else {
+		}
+		else
+		{
 			this.dayLoad[this.relativeDayNo(selectedProject.dayClicked)] += amount;
 		}
-	} else {
+	}
+	else
+	{
 		this.dayLoad[this.relativeDayNo(selectedProject.dayClicked)] += amount;
 	}
 
@@ -397,11 +499,14 @@ Project.prototype.changeWork = function (amount) {
 	draw();
 }
 
-Project.prototype.delete = function () {
+Project.prototype.delete = function ()
+{
 	if (!confirm('This is the last warning, do you really want to delete ' + this.name + '?')) return;
 	notification('Deleting ' + this.name);
-	for (var i = 0; i < projects.length; i++) {
-		if (projects[i] == this) {
+	for (var i = 0; i < projects.length; i++)
+	{
+		if (projects[i] == this)
+		{
 			projects.splice(i);
 		}
 	};
@@ -410,30 +515,37 @@ Project.prototype.delete = function () {
 	saveWork();
 }
 
-function addSelectedInfo(project) {
+function addSelectedInfo(project)
+{
 	document.getElementById('workInput').value = ''; // Taken direct from clear, mostly b/c we don't want to hide and unhide an element.
 	var projectElement = document.querySelector('footer .project');
 
 	projectElement.style.visibility = 'visible';
 
-	if (selectedProject && selectedProject.project == project) {
-		if (selectedProject.ctrl) {
+	if (selectedProject && selectedProject.project == project)
+	{
+		if (selectedProject.ctrl)
+		{
 			document.getElementById('workInput').value = workToTime(project.load(selectedProject.dayClicked));
-		} else {
+		}
+		else
+		{
 			var unitsAbove = project.loadBefore(selectedProject.dayClicked, (project.load(selectedProject.dayClicked) - selectedProject.load)); // loadBefore allows us to calculate over multiple days
 			var minutesAbove = unitsAbove % 60;
 			var hoursAbove = (unitsAbove - minutesAbove) / 60;
-			document.getElementById('workInput').value = workToTime(hoursAbove*60 + minutesAbove);
+			document.getElementById('workInput').value = workToTime(hoursAbove * 60 + minutesAbove);
 		}
 	}
 
 	var daysBeforeNow = 0;
 
-	if (project.relativeDayNo(now) > 0) {
+	if (project.relativeDayNo(now) > 0)
+	{
 		daysBeforeNow = project.relativeDayNo(now);
 	}
 
-	if (daysBeforeNow > project.dayLoad.length) {
+	if (daysBeforeNow > project.dayLoad.length)
+	{
 		daysBeforeNow = project.dayLoad.length;
 	}
 
@@ -445,7 +557,8 @@ function addSelectedInfo(project) {
 	document.getElementById('hours').innerHTML = workToTime(project.workDone) + ' / ' + workToTime(project.size());
 }
 
-function clearSelectedInfo() {
+function clearSelectedInfo()
+{
 	document.querySelector('footer .project').style.visibility = 'hidden';
 	document.getElementById('workInput').value = '';
 }

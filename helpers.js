@@ -252,15 +252,90 @@ function updateFirstDay(newValue)
 	draw();
 }
 
+function getDatelineDot(x)
+{
+	for (var i = 0; i < dateline.dots.length; i++)
+	{
+		if (dateline.dots[i].areas[0] < x && x < dateline.dots[i].areas[1])
+		{
+			var distanceFromDot = 0;
+
+			if (x < dateline.dots[i].x - dateline.dotSize)
+			{
+				distanceFromDot = dateline.dots[i].x - dateline.dotSize - x;
+			}
+			else if (x > dateline.dots[i].x + dateline.dotSize)
+			{
+				distanceFromDot = dateline.dots[i].x + dateline.dotSize - x;
+			}
+
+			return {
+				dotNumber: i,
+				onDot: distanceFromDot === 0,
+				distanceFromDot: Math.floor(distanceFromDot)
+			};
+		}
+	}
+	return null;
+}
+
+function getDatelineDayDifference(x)
+{
+	var clickedData = getDatelineDot(x);
+	if (clickedData)
+	{
+		var dotDayDifference = dateline.dots[clickedData.dotNumber].dayDifference;
+		if (clickedData.onDot || dateline.dots[clickedData.dotNumber].type == 'day')
+		{
+			return dotDayDifference;
+		}
+		else
+		{
+			if (dateline.dots[clickedData.dotNumber].type == 'week')
+			{
+				return dotDayDifference + Math.round(clickedData.distanceFromDot * 7 / dateline.interval * -1);
+			}
+			else if (dateline.dots[clickedData.dotNumber].type == 'month')
+			{
+				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
+			}
+		}
+	}
+
+	return 0; // Return 0 by default
+}
+
 function notification(message)
 {
-	var notificationElement = footer.querySelector('.notification');
-	if (notificationElement.innerHTML.split("<br>").length > 100)
+	var notificationsElement = footer.querySelector('.notifications-list');
+
+	if (notificationsElement.lastElementChild && notificationsElement.lastElementChild.innerHTML == message)
 	{
-		notificationElement.innerHTML = ''; // If more than 100 notifications, clear. // XXX: change to remove earliest notification
+		var messageCount = notificationsElement.lastElementChild.getAttribute("data-messageCount");
+		if (messageCount == null)
+		{
+			messageCount = '(0) ';
+		}
+		messageCount = messageCount.replace(/\d+/, function (num)
+		{
+			return ++num;
+		});
+		notificationsElement.lastElementChild.setAttribute("data-messageCount", messageCount);
 	}
-	notificationElement.innerHTML += message + '<br>';
-	notificationElement.scrollTop = notificationElement.scrollHeight; // Scroll to bottom
+	else
+	{
+		var notification = document.createElement('p');
+		notification.innerHTML = message;
+		notification.classList.add('notification');
+		notificationsElement.appendChild(notification);
+	}
+
+	if (notificationsElement.childNodes.length == 1000)
+	{
+		notificationsElement.removeChild(notificationsElement.childNodes[0]);
+	}
+
+	notificationsElement.scrollTop = notificationsElement.scrollHeight; // Scroll to bottom
 }
 
 function addEventListeners()
@@ -351,10 +426,6 @@ function addEventListeners()
 	{
 		updateFirstDay(fromMoment(moment(dateInput.value, calendarFormat)));
 	}, false);
-
-	/*scrollbar.addEventListener('input', function () {
-		updateFirstDay(scrollbar.value);
-	}, false);*/
 
 	document.getElementById('date_minus_31').addEventListener('click', function ()
 	{
@@ -477,7 +548,7 @@ function addEventListeners()
 				notification('Finished file upload of ' + file.name);
 				var fileContent = reader.result;
 				loadSavedFile(fileContent);
-				document.getElementById('import_input').value = ''; // Clear the file input b/c browser otherwise no longer registers change event (unless file name changes)
+				document.getElementById('import_input').value = ''; // Clear the input so that calls change event is called even when file name has not changed
 			};
 
 			reader.readAsText(file); // Actually read the file
@@ -491,9 +562,8 @@ function onResizeWindow()
 	screenHeight = document.querySelector('html').clientHeight;
 
 	ctx.canvas.width = screenWidth;
-	headerCtx.canvas.width = screenWidth;
-	//headerCtx.canvas.style.margin =  "0 auto";
 	ctx.canvas.height = screenHeight - footer.clientHeight - headerCtx.canvas.clientHeight;
+	headerCtx.canvas.width = screenWidth;
 
 	fullDayWidth = screenWidth / daysPerPage;
 

@@ -37,10 +37,17 @@ footer {
 			border-left: 1px solid black;
 			border-right: 1px solid black;
 		}
-		&.notification {
+		&.notifications-list {
 			padding-left: 0.5em;
 			overflow-y: auto;
 			white-space: normal;
+			.notification {
+				margin: 0;
+				&:before {
+					content: attr(data-messageCount);
+					color: red;
+				}
+			}
 		}
 		.projectMod {
 			float: right;
@@ -57,6 +64,7 @@ footer {
 			// text-align: right;
 			float: right;
 		}
+
 		#version {
 			position: absolute;
 			bottom: 0;

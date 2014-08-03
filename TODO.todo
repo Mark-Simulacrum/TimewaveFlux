@@ -42,7 +42,7 @@
 	---- TestEverything
 --- If too many hours in day, show it!
 +--- Notification area
---- Replace range value/scrollbar with youtube style red bar, dots for each month, whole calendar
++--- Replace range value/scrollbar with youtube style red bar, dots for each month, whole calendar
 	- Now + 1y = totalCalendarDayCount
 +--- Change minute delimeters to show when dragging
 	+- Show on all days of moving project
