@@ -237,7 +237,6 @@ Project.prototype.updateDayLoad = function (dayNo)
 	var clicked_previous = clicked.current;
 	var clicked_current = dayNo;
 
-
 	var futureChange = clicked_current - clicked_previous; // Change since last update.
 	var touchingStart = clicked_current < this.start();
 	var touchingDeadline = (this.deadline - this.lastWork() == 0);

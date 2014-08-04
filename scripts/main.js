@@ -56,7 +56,7 @@ var debug = true;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
-function init()
+function init() // TODO: Clean up codebase for init()
 {
 	calendarStart = moment().format(calendarFormat);
 	footer = document.querySelector('footer');

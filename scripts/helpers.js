@@ -359,12 +359,12 @@ function addEventListeners()
 			return;
 		}
 
-		if (inputWorkUnits > selectedProject.project.size())
+		if (selectedProject.project.workDone + inputWorkUnits > selectedProject.project.size())
 		{
 			var answer = confirm('Do you wish to mark ' + selectedProject.project.name + ' completely done?');
 			if (answer)
 			{
-				inputWorkUnits = selectedProject.project.size();
+				inputWorkUnits = selectedProject.project.size() - selectedProject.project.workDone;
 			}
 			else
 			{
