@@ -54,7 +54,7 @@ function dateText(dayNo, fullDate)
 
 function toMoment(dayNo)
 {
-	return moment(calendarStart, calendarFormat).add('days', dayNo).startOf('day');
+	return moment(calendarStart, calendarFormat).add(dayNo, 'day').startOf('day');
 }
 
 function fromMoment(moment)

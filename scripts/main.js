@@ -273,7 +273,7 @@ function calculatePoint(dotNumber, side)
 		color = 'blue';
 
 		dayDelta = side * (dateline.monthDots - dotNumber);
-		currentMoment = toMoment(currentDay).add('month', dayDelta);
+		currentMoment = toMoment(currentDay).add(dayDelta, 'month');
 		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
 
 		text = currentMoment.format(dateline.monthFormat);
@@ -287,7 +287,7 @@ function calculatePoint(dotNumber, side)
 		dotType = 'week';
 
 		dayDelta = side * (dateline.monthDots + dateline.weekDots - dotNumber);
-		currentMoment = toMoment(currentDay).add('week', dayDelta);
+		currentMoment = toMoment(currentDay).add(dayDelta, 'week');
 
 		text = currentMoment.format(dateline.weekFormat);
 
@@ -301,7 +301,7 @@ function calculatePoint(dotNumber, side)
 		dotType = 'day';
 
 		dayDelta = side * (dateline.monthDots + dateline.weekDots + dateline.dayDots - dotNumber);
-		currentMoment = toMoment(currentDay).add('day', dayDelta);
+		currentMoment = toMoment(currentDay).add(dayDelta, 'day');
 
 		differenceInDays = currentMoment.diff(toMoment(currentDay), 'days');
 		text = currentMoment.format(dateline.dayFormat);
