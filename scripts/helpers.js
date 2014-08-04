@@ -97,7 +97,8 @@ function getProjectByCoordinates(x, y)
 		var project = foundProjects[i];
 		var relativeDayNo = project.relativeDayNo(dayNo);
 
-		if (project.y[relativeDayNo] < y && y < project.maxY(dayNo))
+		// Add headerCtx canvas height to fix coordinates.
+		if (project.y[relativeDayNo] + headerCtx.canvas.clientHeight < y && y < project.maxY(dayNo) + headerCtx.canvas.clientHeight)
 		{
 			return project;
 		}
