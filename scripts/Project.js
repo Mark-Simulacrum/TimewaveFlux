@@ -70,7 +70,7 @@ Project.prototype.maxX = function (dayNo)
 
 Project.prototype.maxY = function (dayNo)
 {
-	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo) + headerCtx.canvas.clientHeight;
+	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo);
 }
 
 Project.prototype.height = function (dayNo)
@@ -80,6 +80,7 @@ Project.prototype.height = function (dayNo)
 
 Project.prototype.toHeight = function (load)
 {
+	assert(load >= 0);
 	if (load != 0 && load < minimumWork) load = minimumWork; // Sets all project heights to at least minimumWork.
 	return (load / 15) * workUnitHeight * 15;
 }
@@ -165,11 +166,6 @@ Project.prototype.doneLoad = function (dayNo)
 	};
 
 	return Math.min(workDone, this.dayLoad[i]); // Does not allow workDone to exceed amount of work in this day.
-}
-
-function test(arg1, arg2)
-{
-	return [arg1, arg2];
 }
 
 Project.prototype.loadBefore = function (dayNo, load)
@@ -396,6 +392,7 @@ Project.prototype.changeDeadline = function (newDeadline)
 				}
 			};
 		}
+		this.deadline = newDeadline;
 	}
 }
 
@@ -555,6 +552,7 @@ function addSelectedInfo(project)
 	document.getElementById('deadline').value = dateText(project.deadline, true);
 	document.getElementById('days').innerHTML = daysBeforeNow + '/' + project.dayLoad.length; // Add 1 to now b/c now includes now.
 	document.getElementById('hours').innerHTML = workToTime(project.workDone) + ' / ' + workToTime(project.size());
+	document.getElementById('workInDayClicked').innerHTML = workToTime(project.load(selectedProject.dayClicked));
 }
 
 function clearSelectedInfo()

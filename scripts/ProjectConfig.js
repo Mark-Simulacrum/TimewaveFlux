@@ -3,14 +3,14 @@ var projects = [
 		name: 'Project #1',
 		deadline: 1,
 		color: 'lightblue',
-		dayLoad: [25],
+		dayLoad: [10],
 		customer: 'Happy Joe'
 	}),
 	new Project({
 		name: 'Project #2',
 		color: '#BADA55',
 		deadline: 1,
-		dayLoad: [7]
+		dayLoad: [25]
 	}),
 	new Project({
 		name: 'Project #3',

@@ -346,7 +346,7 @@ function addEventListeners()
 	var buttonDone = document.getElementById('done');
 	var dateInput = document.getElementById('date');
 
-	// If in project section, no need to check for selectedProject as we cannot click anything there w/o selecting a project.
+//	 If in project section, no need to check for selectedProject as we cannot click anything there w/o selecting a project.
 	buttonDone.addEventListener('click', function ()
 	{
 		if (projectInput.value === 0 || !projectInput.value) return;

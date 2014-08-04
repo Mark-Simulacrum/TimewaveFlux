@@ -17,8 +17,8 @@ var minimumWork = 20;
 
 var daySize = 8 * 60; // In minutes
 var calendarFormat = 'YYYY/MM/DD';
-var calendarStart = '2014/08/01';
-var now = 3;
+var calendarStart = '';
+var now = 0;
 var firstDay = now;
 var daysPerPage = 11;
 
@@ -52,12 +52,13 @@ var dateline = {
 dateline.sections = (dateline.monthDots + dateline.weekDots + dateline.dayDots) * 2;
 dateline.midPoint = Math.floor(dateline.sections / 2);
 
-var debug = false;
+var debug = true;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
 function init()
 {
+	calendarStart = moment().format(calendarFormat);
 	footer = document.querySelector('footer');
 	headerCtx = document.getElementById('header-canvas').getContext('2d');
 	ctx = document.getElementById('main-canvas').getContext('2d');
