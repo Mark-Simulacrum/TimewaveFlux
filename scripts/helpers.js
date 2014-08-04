@@ -26,6 +26,11 @@ function dayStart(dayNo)
 	return leftBorder(dayNo) + borderWidth;
 }
 
+function dayEnd(dayNo)
+{
+	return dayStart(dayNo) + dayWidth();
+}
+
 function dayWidth()
 {
 	return fullDayWidth - borderWidth;

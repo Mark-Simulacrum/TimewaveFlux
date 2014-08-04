@@ -53,21 +53,6 @@ Project.prototype.load = function (dayNo)
 	return this.dayLoad[this.relativeDayNo(dayNo)] || 0; // 0 for the cases where dayLoad does not contain that day.
 }
 
-Project.prototype.summary = function ()
-{
-	return [
-		this.name,
-		// 'Size: ' +  this.size,
-		// 'Deadline: ' +  this.deadline,
-		// 'Start: ' + this.start()
-	].join('\n');
-}
-
-Project.prototype.maxX = function (dayNo)
-{
-	return dayStart(dayNo) + dayWidth();
-}
-
 Project.prototype.maxY = function (dayNo)
 {
 	return this.y[this.relativeDayNo(dayNo)] + this.height(dayNo);
@@ -88,24 +73,22 @@ Project.prototype.toHeight = function (load)
 Project.prototype.draw = function (dayNo, offsetTop)
 {
 	assert(offsetTop > 0);
-	var project = this;
-
 	var offsetLeft = dayStart(dayNo);
-	var projectHeight = project.height(dayNo);
+	var projectHeight = this.height(dayNo);
 
-	var relativeDayNo = project.relativeDayNo(dayNo);
-	var color = selectedProject && project == selectedProject.project ? 'red' : 'black';
+	var relativeDayNo = this.relativeDayNo(dayNo);
+	var color = selectedProject && this == selectedProject.project ? 'red' : 'black';
 
 	// Don't need to store x because it is dayStart(dayNo).
-	project.y[relativeDayNo] = offsetTop;
+	this.y[relativeDayNo] = offsetTop;
 
 	if (!projectHeight)
 	{
 		return offsetTop;
 	}
 
-	// Draws rectangle (project)
-	ctx.fillStyle = project.color;
+	// Draws rectangle
+	ctx.fillStyle = this.color;
 	ctx.fillRect(offsetLeft, offsetTop, dayWidth(), projectHeight);
 
 	// Top and bottom project seperators
@@ -125,10 +108,10 @@ Project.prototype.draw = function (dayNo, offsetTop)
 	ctx.textBaseline = 'top';
 	if (projectHeight >= minimumWork)
 	{
-		ctx.fillText(project.name, offsetLeft + dayWidth() / 2, offsetTop, dayWidth());
+		ctx.fillText(this.name, offsetLeft + dayWidth() / 2, offsetTop, dayWidth());
 		if (projectHeight >= minimumWork * 2)
 		{
-			var workDoneOutOfTotal = workToTime(project.doneLoad(dayNo)) + '/' + workToTime(project.load(dayNo));
+			var workDoneOutOfTotal = workToTime(this.doneLoad(dayNo)) + '/' + workToTime(this.load(dayNo));
 			ctx.textBaseline = 'bottom';
 			ctx.fillText(workDoneOutOfTotal, offsetLeft + dayWidth() / 2, offsetTop + projectHeight, dayWidth());
 		}
