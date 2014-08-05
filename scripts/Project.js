@@ -1,3 +1,4 @@
+"use strict";
 function Project(args)
 {
 	this.name = args.name;
@@ -537,7 +538,7 @@ function addSelectedInfo(project)
 	document.getElementById('workInDayClicked').innerHTML = workToTime(project.load(selectedProject.dayClicked));
 }
 
-function clearSelectedInfo()
+function hideSelectedInfo()
 {
 	document.querySelector('footer .project').style.visibility = 'hidden';
 	document.getElementById('workInput').value = '';

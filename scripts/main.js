@@ -1,4 +1,5 @@
-var selectedProject, clicked, moused, ctx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__;
+"use strict";
+var selectedProject, clicked, moused, ctx, headerCtx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__;
 var footer, header, undoButton, exportButton, importButton, scrollbar;
 
 var fontStack = 'Consolas, monaco, monospace';
@@ -12,7 +13,7 @@ var dayCount = 365 * 100;
 // In Pixels
 var dayTitleHeight = 20;
 var borderWidth = 1;
-var workUnitHeight = 1; // 1 work units == 1 min of height
+var workUnitHeight;// = 1; // 1 work units == 1 min of height // Updates on load
 var minimumWork = 20;
 
 var daySize = 8 * 60; // In minutes
@@ -58,28 +59,31 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function init() // TODO: Clean up codebase for init()
 {
-	calendarStart = moment().format(calendarFormat);
 	footer = document.querySelector('footer');
 	headerCtx = document.getElementById('header-canvas').getContext('2d');
 	ctx = document.getElementById('main-canvas').getContext('2d');
+
+	workUnitHeight = 1;//daySize / ctx.canvas.clientHeight;
 
 	loadWork();
 	displayVersion();
 
 	if (debug)
 	{
+		calendarStart = moment().format(calendarFormat);
 		updateDaysPerPage(daysPerPage);
 		updateFirstDay(now);
 	}
 	else
 	{
+		calendarStart = '2014/08/01';
 		updateDaysPerPage(daysPerPage);
 		updateFirstDay(fromMoment(moment()));
 	}
 
 	addEventListeners();
 
-	clearSelectedInfo(); // Hides and clears selected info.
+	hideSelectedInfo();
 
 	window.addEventListener('resize', onResizeWindow, false);
 	onResizeWindow(); // Call this to initially set all the DOM sizes.
@@ -133,7 +137,7 @@ function init() // TODO: Clean up codebase for init()
 		}
 		else if (selectedProject)
 		{ // Clear selected project if clicking whitespace.
-			clearSelectedInfo();
+			hideSelectedInfo();
 			selectedProject = null; // No need to do this if clicking on a different project, b/c we will simply rewrite the existing selectedProject.
 			draw();
 		}
@@ -152,10 +156,10 @@ function init() // TODO: Clean up codebase for init()
 		}
 	}, false);
 
-	document.addEventListener('mousemove', function (e)
+	document.addEventListener('mousemove', function (event)
 	{
-		mouse.x = e.clientX || e.pageX;
-		mouse.y = e.clientY || e.pageY;
+		mouse.x = event.clientX || event.pageX;
+		mouse.y = event.clientY || event.pageY;
 
 		var project = getProjectByCoordinates(mouse.x, mouse.y);
 		var dayNo = getDay(mouse.x);
@@ -164,7 +168,7 @@ function init() // TODO: Clean up codebase for init()
 		{ // If we changed days or projects, we need to erase the old lines.
 			if (!selectedProject)
 			{
-				clearSelectedInfo();
+				hideSelectedInfo();
 			}
 			moused = null;
 			draw();
@@ -185,8 +189,8 @@ function init() // TODO: Clean up codebase for init()
 			return;
 		}
 
-		clicked.ctrl = e.ctrlKey; // Allows people to ctrl & shift states while clicking.
-		clicked.shift = e.shiftKey;
+		clicked.ctrl = event.ctrlKey; // Allows people to ctrl & shift states while clicking.
+		clicked.shift = event.shiftKey;
 
 		clicked.project.updateDayLoad(dayNo); // Checks if stuff needs to be changed, changes it, and draws.
 	}, false);
@@ -266,6 +270,7 @@ function calculatePoint(dotNumber, side)
 	var differenceInDays = 0;
 	var color;
 	var dayDelta;
+	var currentMoment;
 
 	var currentDay = getCurrentDay();
 
@@ -393,11 +398,18 @@ function drawDays()
 	drawBorder(lastDay);
 }
 
-function assert(condition)
+function assert(condition, message)
 {
+	function AssertionFailed(message)
+	{
+		this.message = message;
+	}
+	AssertionFailed.prototype = Object.create(Error.prototype);
+	AssertionFailed.prototype.name = "AssertionFailed";
+
 	if (!condition)
 	{
-		throw 'Assertion Failed!';
+		throw new AssertionFailed(message);// 'Assertion Failed: ' + message;
 	}
 }
 

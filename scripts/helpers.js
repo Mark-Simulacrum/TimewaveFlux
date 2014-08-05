@@ -1,3 +1,4 @@
+"use strict";
 // General Helpers
 
 function dayLoad(dayNo)

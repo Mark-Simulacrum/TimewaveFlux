@@ -8,3 +8,5 @@
 /bower_components/
 /.todo
 /TODO
+/.brackets.json
+/css/stylesheet.css.map

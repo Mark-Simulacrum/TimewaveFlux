@@ -1,3 +1,4 @@
+"use strict";
 var projects = [
 	new Project({
 		name: 'Project #1',
