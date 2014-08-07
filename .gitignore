@@ -1,12 +1,7 @@
-/sublime_project_workManager.sublime-project
-/sublime_project_workManager.sublime-workspace
-/oldStuff/
-/.ackrc
-/css/stylesheet.css
 /.sass-cache/
-/TODO.todo
-/bower_components/
-/.todo
-/TODO
-/.brackets.json
+/css/stylesheet.css
 /css/stylesheet.css.map
+/bower_components/
+/.ackrc
+/.brackets.json
+/ProjectConfig.exported.js
