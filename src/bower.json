@@ -1,11 +1,10 @@
 {
-  "name": "ProjectFlow",
+  "name": "",
   "version": "0.0.1",
   "directory": "scripts/libraries/bower_components",
   "authors": [
     "Mark Simulacrum <mark.simulacrum@gmail.com>"
   ],
-  "description": "Time management through javascript canvas calendar system.",
   "main": "main.js",
   "keywords": [
     "javascript"

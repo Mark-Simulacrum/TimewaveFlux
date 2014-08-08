@@ -1,4 +1,5 @@
 "use strict";
+/* Sample Configuration */
 var projects = [
 	new Project({
 		name: 'Project #1',

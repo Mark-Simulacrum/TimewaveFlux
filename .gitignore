@@ -1,7 +1,9 @@
-/.sass-cache/
-/css/stylesheet.css
-/css/stylesheet.css.map
-/bower_components/
+/src/bower_components/
+/node_modules/
+/src/css/stylesheet.css
+/src/css/stylesheet.css.map
 /.ackrc
 /.brackets.json
-/ProjectConfig.exported.js
+/gulpfile.js
+/package.json
+/.sass-cache/
