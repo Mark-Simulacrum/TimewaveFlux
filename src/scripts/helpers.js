@@ -68,6 +68,20 @@ function fromMoment(moment)
 	return moment.startOf('day').diff(toMoment(0), 'days'); // startOf('day') is necessary, otherwise halfdays and other weird rounds happen
 }
 
+function toDate(moment)
+{
+	return moment.format(calendarFormat);
+}
+
+/*
+ * Returns a moment object
+ * @return moment
+ */
+function fromDate(date)
+{
+	return moment(date, calendarFormat);
+}
+
 // Canvas helpers
 
 function multilineText(text, x, y, maxWidth, maxHeight, color)
@@ -137,14 +151,22 @@ function saveableProjects()
 	for (var i = 0; i < projects.length; i++)
 	{
 		var project = projects[i];
+
+		var convertedDayLoad = {};
+
+		for (var day = 0; day < project.dayLoad.length; day++)
+		{
+			convertedDayLoad[toMoment(project.start() + day).format(calendarFormat)] = project.dayLoad[day];
+		}
+
 		array.push(
 		{
 			name: project.name,
 			customer_name: project.customer_name,
-			deadline: project.deadline,
+			deadline: toMoment(project.deadline).format(calendarFormat),
 			size: project.size,
 			color: project.color,
-			dayLoad: project.dayLoad,
+			dayLoad: convertedDayLoad,
 			workDone: project.workDone
 		});
 	}
@@ -352,7 +374,7 @@ function addEventListeners()
 	var buttonDone = document.getElementById('done');
 	var dateInput = document.getElementById('date');
 
-//	 If in project section, no need to check for selectedProject as we cannot click anything there w/o selecting a project.
+	//	 If in project section, no need to check for selectedProject as we cannot click anything there w/o selecting a project.
 	buttonDone.addEventListener('click', function ()
 	{
 		if (projectInput.value === 0 || !projectInput.value) return;
@@ -528,9 +550,9 @@ function addEventListeners()
 	{
 		var blob = new Blob([JSON.stringify(saveableProjects(), undefined, 4)],
 		{
-			type: 'text/plain;charset=utf-8'
+			type: 'text/json;charset=utf-8'
 		});
-		saveAs(blob, "ProjectConfig.exported.js");
+		saveAs(blob, "ProjectConfig-exported.json");
 	}, false);
 
 	document.getElementById('import').addEventListener('click', function ()
@@ -600,12 +622,22 @@ function displayVersion(version)
 
 function loadProjects(saved_projects)
 {
-	if (saved_projects === undefined || saved_projects === null)
-	{ // We shouldn't try to load projects that are not existent
-		return projects; // Return current projects, which (hopefully?) are not null.
+	var new_projects = [];
+	if (saved_projects === undefined || saved_projects === null || saved_projects.length == 0)
+	{ // Load projects from configuration
+		var request = new XMLHttpRequest();
+		request.open('GET', 'scripts/ProjectConfig.json', false);
+		request.send(null);
+		saved_projects = JSON.parse(request.responseText);
+		projects = [];
+		for (var i = 0; i < saved_projects.length; i++)
+		{
+			projects.push(new Project(saved_projects[i]));
+		}
+
+		return projects;
 	}
 
-	var new_projects = [];
 	for (var i = 0; i < saved_projects.length; i++)
 	{ // Is needed to preserve Project prototypes.
 		new_projects.push(new Project(saved_projects[i]));

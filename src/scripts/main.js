@@ -18,10 +18,12 @@ var minimumWork = 20;
 
 var daySize = 8 * 60; // In minutes
 var calendarFormat = 'YYYY/MM/DD';
-var calendarStart = '';
+var calendarStart = '2014/08/01';
 var now = 0;
 var firstDay = now;
 var daysPerPage = 11;
+
+var projects = [];
 
 var dateline = {
 	monthDots: 6,
@@ -53,7 +55,7 @@ var dateline = {
 dateline.sections = (dateline.monthDots + dateline.weekDots + dateline.dayDots) * 2;
 dateline.midPoint = Math.floor(dateline.sections / 2);
 
-var debug = true;
+var debug = false;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
@@ -70,15 +72,13 @@ function init() // TODO: Clean up codebase for init()
 
 	if (debug)
 	{
-		calendarStart = moment().format(calendarFormat);
 		updateDaysPerPage(daysPerPage);
 		updateFirstDay(now);
 	}
 	else
 	{
-		calendarStart = '2014/08/01';
 		updateDaysPerPage(daysPerPage);
-		updateFirstDay(fromMoment(moment()));
+		updateFirstDay(0);
 	}
 
 	addEventListeners();

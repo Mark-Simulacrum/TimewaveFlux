@@ -1,11 +1,30 @@
 "use strict";
+
 function Project(args)
 {
 	this.name = args.name;
 	this.customer_name = args.customer || 'Unknown Joe';
-	this.deadline = args.deadline;
+	this.deadline = fromMoment(moment(args.deadline, calendarFormat));
 	this.color = args.color || 'aqua';
-	this.dayLoad = args.dayLoad || [args.size]; // If no dayLoad supplied, default to just having it be single-day
+
+	var dayLoadKeys = Object.keys(args.dayLoad);
+
+	dayLoadKeys.sort(function (a, b)
+	{
+		return fromDate(a).isAfter(fromDate(b));
+	});
+
+	this.dayLoad = [];
+
+	for (var keyID = 0; keyID <= this.deadline - fromMoment(fromDate(dayLoadKeys[0])); keyID++)
+	{
+		var value = args.dayLoad[dayLoadKeys[keyID]];
+		if (value)
+			this.dayLoad[keyID] = value;
+		else
+			this.dayLoad[keyID] = 0;
+	}
+
 	this.workDone = args.workDone || 0;
 
 	// Initialize variables
