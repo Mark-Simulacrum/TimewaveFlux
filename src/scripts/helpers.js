@@ -684,11 +684,16 @@ function saveWork()
 
 function loadWork()
 {
-	if (debug) return;
 	setupLocalStorage();
 
-	var currentVersion = Number(localStorage.currentVersion); // localStorage contains string, we should convert to number
-	var savedProjects = JSON.parse(localStorage.savedProjects)[currentVersion];
+	if (!debug) {
+		var currentVersion = Number(localStorage.currentVersion); // localStorage contains string, we should convert to number
+		var savedProjects = JSON.parse(localStorage.savedProjects)[currentVersion];
+	}
+	else
+	{
+		var savedProjects = null;
+	}
 
 	projects = loadProjects(savedProjects);
 	draw(); // Once we've loaded work, draw.

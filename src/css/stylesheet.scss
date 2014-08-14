@@ -18,7 +18,9 @@ footer {
 
 	padding: 0 1em;
 	display: table-cell;
+
 	section {
+		display: table;
 		$rightMargin: 0.5em;
 		position: relative;
 		width: 33%;
@@ -27,10 +29,24 @@ footer {
 		float: left;
 		overflow: auto;
 
+		&:nth-child(1) {
+			.noWrap {
+				white-space: normal;
+				display: table-row;
+				width: 100%;
+			}
+		}
+
 		&:nth-child(2) {
 			border-left: 1px solid black;
 			border-right: 1px solid black;
 		}
+
+		&:nth-child(3)
+		{
+			display: table-cell;
+		}
+
 		&.notifications-list {
 			padding-left: 0.5em;
 			overflow-y: auto;
@@ -44,11 +60,8 @@ footer {
 			}
 		}
 		.projectMod {
+			display: table-cell;
 			float: right;
-		}
-		.selected { // Only for id=deadline or id=start
-			color: green;
-			font-weight: bold;
 		}
 		.center {
 			margin: 0 auto;
@@ -67,7 +80,7 @@ footer {
 }
 
 input.date {
-	width: 11ex;
+	width: 12ex;
 	text-align: center;
 }
 
