@@ -161,8 +161,6 @@ function init() // TODO: Clean up codebase for init()
 
 		if (clickedStart)
 		{
-			var dayNo = getDay(mouse.x);
-			updateFirstDay(firstDay + clickedStart - dayNo);
 			clickedStart = null;
 		}
 	}, false);
@@ -193,6 +191,11 @@ function init() // TODO: Clean up codebase for init()
 				'project': project,
 				'day': dayNo
 			};
+		}
+
+		if (clickedStart)
+		{
+			updateFirstDay(firstDay + clickedStart - dayNo);
 		}
 
 		if (!clicked)
