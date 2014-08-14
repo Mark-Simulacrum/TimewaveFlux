@@ -1,5 +1,5 @@
 "use strict";
-var selectedProject, clicked, moused, ctx, headerCtx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__;
+var selectedProject, clicked, moused, ctx, headerCtx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__, clickedStart;
 var footer, header, undoButton, exportButton, importButton, scrollbar;
 
 var fontStack = 'Consolas, monaco, monospace';
@@ -108,10 +108,10 @@ function init() // TODO: Clean up codebase for init()
 		footer.classList.add('noSelect'); // Prevents anything from being selected while mouse moves
 
 		var project = getProjectByCoordinates(mouse.x, mouse.y);
+		var dayNo = getDay(mouse.x);
 
 		if (project)
 		{ // If we didn't click on a project; don't do anything.
-			var dayNo = getDay(mouse.x);
 			var mouseLoad = project.mouseLoad(dayNo, mouse.y);
 
 			clicked = {
@@ -141,6 +141,10 @@ function init() // TODO: Clean up codebase for init()
 			selectedProject = null; // No need to do this if clicking on a different project, b/c we will simply rewrite the existing selectedProject.
 			draw();
 		}
+		else
+		{
+			clickedStart = dayNo;
+		}
 
 	}, false);
 
@@ -153,6 +157,13 @@ function init() // TODO: Clean up codebase for init()
 			saveWork();
 			clicked = null;
 			draw();
+		}
+
+		if (clickedStart)
+		{
+			var dayNo = getDay(mouse.x);
+			updateFirstDay(firstDay + clickedStart - dayNo);
+			clickedStart = null;
 		}
 	}, false);
 
