@@ -75,18 +75,14 @@ function init() // TODO: Clean up codebase for init()
 	loadWork();
 	displayVersion();
 
-	if (debug)
-	{
-		updateDaysPerPage(daysPerPage);
-		updateFirstDay(now);
-	}
-	else
-	{
-		updateDaysPerPage(daysPerPage);
-		updateFirstDay(0);
-	}
+	now = fromMoment(moment());
+
+	updateDaysPerPage(14);
+	updateFirstDay(0);
+
 
 	addEventListeners();
+	if (!debug) document.getElementById('today').click(); // Sets today to be in middle of screen on project load
 
 	hideSelectedInfo();
 
