@@ -218,10 +218,9 @@ Project.prototype.drawHoursDone = function (dayNo)
 		ctx.setLineDash([2]);
 		ctx.moveTo(x + dayWidth(), y + crossHeight);
 		ctx.lineTo(x, y + crossHeight);
-		ctx.stroke();
-		ctx.setLineDash([0]);
 		ctx.closePath();
 		ctx.stroke();
+		ctx.setLineDash([]);
 	}
 }
 
