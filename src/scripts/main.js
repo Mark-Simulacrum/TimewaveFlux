@@ -61,6 +61,11 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function init() // TODO: Clean up codebase for init()
 {
+	if (window.location.hash == "#debug")
+	{
+		debug = true;
+	}
+
 	footer = document.querySelector('footer');
 	headerCtx = document.getElementById('header-canvas').getContext('2d');
 	ctx = document.getElementById('main-canvas').getContext('2d');
