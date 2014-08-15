@@ -1,9 +1,6 @@
 /src/bower_components/
-/node_modules/
 /src/css/stylesheet.css
 /src/css/stylesheet.css.map
 /.ackrc
 /.brackets.json
-/gulpfile.js
-/package.json
 /.sass-cache/
