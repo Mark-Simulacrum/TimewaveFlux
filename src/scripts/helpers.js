@@ -513,7 +513,7 @@ function addEventListeners()
 
 	document.getElementById('today').addEventListener('click', function ()
 	{
-		updateFirstDay(fromMoment(moment()));
+		updateFirstDay(fromMoment(moment()) - Math.floor(daysPerPage/2));
 	}, false);
 
 	document.getElementById('undo').addEventListener('click', function ()
