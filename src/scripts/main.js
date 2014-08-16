@@ -119,7 +119,7 @@ function init() // TODO: Clean up codebase for init()
 				'project': project,
 				'current': dayNo, // In the case that the user doesn't move mouse after clicking
 				'previous': dayNo, // The Place we were before is here, since no before.
-				'load': Math.ceil(mouseLoad / 15) * 15, // the current 15 minute section of project (and below)
+				'load': project.load(dayNo) > 15 ? Math.min(Math.ceil(mouseLoad / 15) * 15, project.load(dayNo)) : project.load(dayNo), // the current 15 minute section of project (and below)
 				'shift': mouseEvent.shiftKey,
 				'ctrl': mouseEvent.ctrlKey,
 			};

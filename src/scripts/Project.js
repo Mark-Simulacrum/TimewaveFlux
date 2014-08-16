@@ -70,7 +70,8 @@ Project.prototype.relativeDayNo = function (dayNo)
 
 Project.prototype.load = function (dayNo)
 { // May be called with dayNo that is not in project.dayLoad.
-	return this.dayLoad[this.relativeDayNo(dayNo)] || 0; // 0 for the cases where dayLoad does not contain that day.
+	var relativeLoad = this.dayLoad[this.relativeDayNo(dayNo)];
+	return relativeLoad >= 0 ? relativeLoad : 0;
 }
 
 Project.prototype.maxY = function (dayNo)
@@ -226,7 +227,7 @@ Project.prototype.drawHoursDone = function (dayNo)
 
 Project.prototype.mouseLoad = function (dayNo, y)
 {
-	return this.load(dayNo) - (y - this.y[this.relativeDayNo(dayNo)] - headerCtx.canvas.clientHeight) / workUnitHeight;
+	return (this.load(dayNo) * workUnitHeight) - (y - this.y[this.relativeDayNo(dayNo)] - headerCtx.canvas.clientHeight);
 };
 
 Project.prototype.updateDayLoad = function (dayNo)
