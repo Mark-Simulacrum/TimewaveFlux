@@ -1,76 +1,70 @@
 "use strict";
-var selectedProject, clicked, moused, ctx, headerCtx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__, clickedStart;
-var footer, header, undoButton, exportButton, importButton, scrollbar;
+var selectedProject, clicked, moused, ctx, headerCtx, screenWidth, screenHeight, fullDayWidth, __measuretext_cache__, clickedStart,
+	footer, header, undoButton, exportButton, importButton, scrollbar,
+	fontStack = '12pt Arial',
 
-var fontStack = 'Consolas, monaco, monospace';
-
-var mouse = {
-	x: 0,
-	y: 0
-};
-var dayCount = 365 * 100;
-
-// In Pixels
-var dayTitleHeight = 20;
-var borderWidth = 1;
-var workUnitHeight;// = 1; // 1 work units == 1 min of height // Updates on load
-var minimumWork = 20;
-
-var daySize = 8 * 60; // In minutes
-var calendarFormat = 'YYYY/MM/DD';
-var calendarStart = '2014/08/01';
-var now = 0;
-var firstDay = now;
-var daysPerPage = 11;
-
-var projects = [];
-
-var dateline = {
-	monthDots: 6,
-	monthFormat: 'MMM',
-	weekDots: 2,
-	weekFormat: '[w]w',
-	dayDots: 3,
-	dayFormat: 'ddd',
-	scaleCanvasWidth: 1,
-	dots: [],
-	get dotSize()
-	{
-		return Math.floor(headerCtx.canvas.clientHeight / 4);
+	mouse = {
+		x: 0,
+		y: 0
 	},
-	get dotY()
-	{
-		return dateline.dotSize + borderWidth;
-	},
-	get interval()
-	{
-		return (screenWidth * dateline.scaleCanvasWidth) / dateline.sections;
-	},
-	get startPoint()
-	{
-		return (screenWidth - dateline.interval * dateline.sections) / 2;
-	}
-};
+
+	debug,
+
+	dayCount = 356 * 100,
+
+	// In Pixels
+	dayTitleHeight = 20,
+	borderWidth = 1,
+	workUnitHeight = 1,
+	minimumWork = 20,
+
+	daySize = 8 * 60, // In minutes
+
+	calendarFormat = 'YYYY/MM/DD',
+	calendarStart = '2014/08/01',
+	now = 0,
+	firstDay = now,
+	daysPerPage = 11,
+	projects = [],
+	dateline = {
+		monthDots: 6,
+		monthFormat: 'MMM',
+		weekDots: 2,
+		weekFormat: '[w]w',
+		dayDots: 3,
+		dayFormat: 'ddd',
+		scaleCanvasWidth: 1,
+		dots: [],
+		get dotSize()
+		{
+			return Math.floor(headerCtx.canvas.clientHeight / 4);
+		},
+		get dotY()
+		{
+			return dateline.dotSize + borderWidth;
+		},
+		get interval()
+		{
+			return (screenWidth * dateline.scaleCanvasWidth) / dateline.sections;
+		},
+		get startPoint()
+		{
+			return (screenWidth - dateline.interval * dateline.sections) / 2;
+		}
+	};
 
 dateline.sections = (dateline.monthDots + dateline.weekDots + dateline.dayDots) * 2;
 dateline.midPoint = Math.floor(dateline.sections / 2);
-
-var debug = false;
 
 document.addEventListener('DOMContentLoaded', init, false);
 
 function init() // TODO: Clean up codebase for init()
 {
-	if (window.location.hash == "#debug")
-	{
-		debug = true;
-	}
+	debug = window.location.hash.indexOf('debug');
 
 	footer = document.querySelector('footer');
 	headerCtx = document.getElementById('header-canvas').getContext('2d');
 	ctx = document.getElementById('main-canvas').getContext('2d');
-
-	workUnitHeight = 1;//daySize / ctx.canvas.clientHeight;
 
 	loadWork();
 	displayVersion();
@@ -79,7 +73,6 @@ function init() // TODO: Clean up codebase for init()
 
 	updateDaysPerPage(14);
 	updateFirstDay(0);
-
 
 	addEventListeners();
 	if (!debug) document.getElementById('today').click(); // Sets today to be in middle of screen on project load
@@ -215,6 +208,7 @@ function init() // TODO: Clean up codebase for init()
 
 function draw()
 {
+	ctx.font = fontStack;
 	drawDays();
 	drawScroll();
 }
@@ -394,7 +388,6 @@ function drawDays()
 		}
 		ctx.fillStyle = oldColor;
 
-		ctx.font = '11pt bold ' + fontStack;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillText((debug ? dayNo + ' ' : '') + dateText(dayNo, true), dayStart(dayNo) + dayWidth() / 2, dayTitleHeight / 2 + borderWidth, dayWidth());

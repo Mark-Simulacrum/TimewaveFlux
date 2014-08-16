@@ -92,7 +92,6 @@ function multilineText(text, x, y, maxWidth, maxHeight, color)
 
 	ctx.fillStyle = color;
 	ctx.textAlign = 'center';
-	ctx.font = 'Arial 12pt';
 
 	for (var i = 0; i < textArray.length; i++)
 	{
