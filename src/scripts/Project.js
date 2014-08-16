@@ -60,7 +60,7 @@ Project.prototype.lastWork = function ()
 
 Project.prototype.dayLoadLength = function ()
 {
-	return this.dayLoad.trimZeros().length;
+	return this.dayLoad.trim(0).length;
 }
 
 Project.prototype.relativeDayNo = function (dayNo)

@@ -713,68 +713,15 @@ function clearTooltip()
 	element.style.display = 'none';
 }
 
-// Third-party functions
+// Polyfills
 
-/**
- * Work attributed to: http://www.rgraph.net/blog/2013/january/measuring-text-height-with-html5-canvas.html; Richard Heyes
- * Measures text by creating a DIV in the document and adding the relevant text to it.
- * Then checking the .offsetWidth and .offsetHeight. Because adding elements to the DOM is not particularly
- * efficient in animations (particularly) it caches the measured text width/height.
- *
- * @param  string text   The text to measure
- * @param  bool   bold   Whether the text is bold or not
- * @param  string font   The font to use
- * @param  size   number The size of the text (in pts)
- * @return array         A two element array of the width and height of the text
- */
-function MeasureText(text, bold, font, size)
+if (!Array.prototype.contains)
 {
-	// This global variable is used to cache repeated calls with the same arguments
-	var str = text + ':' + bold + ':' + font + ':' + size;
-	if (typeof (__measuretext_cache__) == 'object' && __measuretext_cache__[str])
+	Array.prototype.contains = function (needle)
 	{
-		return __measuretext_cache__[str];
-	}
-
-	var div = document.createElement('DIV');
-	div.innerHTML = text;
-	div.style.position = 'absolute';
-	div.style.top = '-100px';
-	div.style.left = '-100px';
-	div.style.fontFamily = font;
-	div.style.fontWeight = bold ? 'bold' : 'normal';
-	div.style.fontSize = size + 'pt';
-	document.body.appendChild(div);
-
-	var stringSize = [div.offsetWidth, div.offsetHeight];
-
-	document.body.removeChild(div);
-
-	// Add the sizes to the cache as adding DOM elements is costly and can cause slow downs
-	if (typeof (__measuretext_cache__) != 'object')
-	{
-		__measuretext_cache__ = [];
-	}
-	__measuretext_cache__[str] = stringSize;
-
-	return stringSize;
+		return this.indexOf(needle) !== -1;
+	};
 }
-
-/** // Chris Coyier, CSS TRICKS, http://css-tricks.com/snippets/javascript/javascript-array-contains/
- * Array.prototype.[method name] allows you to define/overwrite an objects method
- * needle is the item you are searching for
- * this is a special variable that refers to "this" instance of an Array.
- * returns true if needle is in the array, and false otherwise
- */
-Array.prototype.contains = function (needle)
-{
-	// for (var i in this) {
-	//     if (this[i] === needle) return true;
-	// }
-	// return false;
-
-	return this.indexOf(needle) >= 0;
-};
 
 // Credit: MDN @ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/contains
 if (!String.prototype.contains)
@@ -785,14 +732,14 @@ if (!String.prototype.contains)
 	};
 }
 
-Array.prototype.trimZeros = function ()
+Array.prototype.trim = function (value)
 {
 	var array = this.slice(0); // Don't modify this, return new array.
-	while (array.length > 0 && array[0] === 0)
+	while (array.length > 0 && array[0] === value)
 	{
 		array.shift();
 	}
-	while (array.length > 0 && array[array.length - 1] === 0)
+	while (array.length > 0 && array[array.length - 1] === value)
 	{
 		array.pop();
 	}
