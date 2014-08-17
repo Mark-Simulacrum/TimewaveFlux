@@ -412,6 +412,10 @@ function addEventListeners()
 		selectedProject.project.spread();
 	}, false);
 
+	document.getElementById('collapse').addEventListener('click', function () {
+		selectedProject.project.collapse(selectedProject.dayClicked);
+	}, false);
+
 	document.getElementById('change-work').addEventListener('click', function ()
 	{
 		if (projectInput.value === 0 || !projectInput.value) return;

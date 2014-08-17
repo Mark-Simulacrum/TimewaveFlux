@@ -185,6 +185,11 @@ Project.prototype.loadBefore = function (dayNo, load)
 	return totalWork;
 }
 
+Project.prototype.loadAfter = function (dayNo, load)
+{
+	return this.size() - this.loadBefore(dayNo, load);
+}
+
 Project.prototype.size = function ()
 {
 	var size = 0;
@@ -422,12 +427,12 @@ Project.prototype.test = function ()
 	return true;
 }
 
-Project.prototype.spread = function ()
+Project.prototype.spread = function (start, end)
 {
-	var spreadStart = Math.max(this.start(), now);
+	var spreadStart = start !== undefined ? start : Math.max(this.start(), now);
 	var relativeStart = this.relativeDayNo(spreadStart);
-	var daysToSpread = this.end() - spreadStart;
-	var amountSpread = this.size() - this.loadBefore(now);
+	var daysToSpread = end !== undefined ? end : this.end() - spreadStart;
+	var amountSpread = this.loadAfter(now);
 	var extraWork = amountSpread % daysToSpread;
 	var amountPerDay = (amountSpread - extraWork) / daysToSpread;
 
@@ -440,6 +445,24 @@ Project.prototype.spread = function ()
 			--extraWork;
 		}
 	};
+
+	saveWork();
+	draw();
+}
+
+Project.prototype.collapse = function (centerDayNo)
+{
+	var amountCollapse = this.loadAfter(now);
+	var amountLeft;
+	var amountPerDay;
+	var centerDayAmount;
+
+	for (var i = this.relativeDayNo(now); i < this.relativeDayNo(this.end()); i++)
+	{
+		this.dayLoad[i] = 0;
+	};
+
+	this.dayLoad[this.relativeDayNo(centerDayNo)] = amountCollapse;
 
 	saveWork();
 	draw();
