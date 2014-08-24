@@ -22,7 +22,7 @@ function daysPerPage(newValue) {
 
 module.exports.daysPerPage = daysPerPage;
 
-module.exports.now = (require('./date-helpers')).fromTodayToDay();
+module.exports.now = (require('./helpers/date-helpers')).fromTodayToDay();
 
 module.exports.now = firstDay();
 module.exports.daySize = 8 * 60;

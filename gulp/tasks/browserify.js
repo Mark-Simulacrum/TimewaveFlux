@@ -15,7 +15,7 @@ var source = require('vinyl-source-stream');
 gulp.task('browserify', function () {
 
 	var bundler = browserify({
-		entries: ['./src/scripts/main.js'],
+		entries: ['./src/scripts/entry-point.js'],
 		cache: {},
 		packageCache: {},
 		debug: true

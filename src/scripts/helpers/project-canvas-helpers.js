@@ -1,9 +1,9 @@
-var globals = require('./globals');
+var globals = require('./../globals');
 
-var projectHelpers = require('./projects');
+var projectHelpers = require('./project-helpers');
 var dayHelpers = require('./day-helpers');
 
-var drawing = require('./project-canvas-draw');
+var drawing = require('./../project-canvas-draw');
 
 var clicked, clickedStart, moused, selectedProject;
 
@@ -71,7 +71,6 @@ module.exports.init = function () {
 		}
 
 		if (clickedStart) {
-			dayHelpers.updateFirstDay(globals.firstDay() + clickedStart - dayHelpers.getDay(event.x));
 			clickedStart = null;
 		}
 	}, false);
@@ -99,7 +98,7 @@ module.exports.init = function () {
 			};
 		}
 		if (clickedStart) {
-			dayHelpers.updateFirstDay(globals.firstDay + clickedStart - dayNo);
+			dayHelpers.updateFirstDay(globals.firstDay() + clickedStart - dayHelpers.getDay(event.x));
 		}
 
 		if (!clicked) { // Nothing being moved, we are done.

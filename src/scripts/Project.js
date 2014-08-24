@@ -1,12 +1,12 @@
-var dateHelpers = require('./date-helpers'),
+var dateHelpers = require('./helpers/date-helpers'),
 	drawing = require('./project-canvas-draw'),
-	dayHelpers = require('./day-helpers'),
-	projectHelpers = require('./projects'),
+	dayHelpers = require('./helpers/day-helpers'),
+	projectHelpers = require('./helpers/project-helpers'),
 	footer = require('./footer'),
 	globals = require('./globals'),
-	tests = require('./tests'),
+	tests = require('./tests/tests'),
 
-	projectCanvas = require('./project-canvas'),
+	projectCanvas = require('./helpers/project-canvas-helpers'),
 
 	assert = require('assert');
 

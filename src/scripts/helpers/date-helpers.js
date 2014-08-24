@@ -3,43 +3,37 @@ var moment = require('moment');
 var calendarFormat = 'YYYY/MM/DD';
 var calendarStart = '2014/08/01';
 
-function toMoment(dayNo)
-{
+function toMoment(dayNo) {
 	return moment(calendarStart, calendarFormat).add(dayNo, 'day').startOf('day');
 }
 
 module.exports.toMoment = toMoment;
 
-function fromMomentToDay(moment)
-{
+function fromMomentToDay(moment) {
 	return moment.startOf('day').diff(toMoment(0), 'days'); // startOf('day') is necessary, otherwise halfdays and other weird rounds happen
 }
 
 module.exports.fromMomentToDay = fromMomentToDay;
 
-function fromMomentToDate(moment)
-{
+function fromMomentToDate(moment) {
 	return moment.format(calendarFormat);
 }
 
 module.exports.fromMomentToDate = fromMomentToDate;
 
-function fromDayToString(dayNo)
-{
+function fromDayToString(dayNo) {
 	return fromMomentToDate(toMoment(dayNo));
 }
 
 module.exports.fromDayToString = fromDayToString;
 
-function fromDateToDay(date)
-{
+function fromDateToDay(date) {
 	return fromMomentToDay(moment(date, calendarFormat));
 }
 
 module.exports.fromDateToDay = fromDateToDay;
 
-function fromDateToMoment(date)
-{
+function fromDateToMoment(date) {
 	return moment(date, calendarFormat);
 }
 
@@ -49,24 +43,19 @@ module.exports.fromTodayToDay = function () {
 	return fromMomentToDay(moment());
 };
 
-function dateText(dayNo, fullDate)
-{
+function dateText(dayNo, fullDate) {
 	var date = toMoment(dayNo).date() + '';
 	var yearDate = '\n' + toMoment(dayNo).format(calendarFormat); // For now, default to day 0 being now (as in, today in real time)
-	if (fullDate)
-	{
+	if (fullDate) {
 		return yearDate;
-	}
-	else
-	{
+	} else {
 		return date;
 	}
 }
 
 module.exports.dateText = dateText;
 
-function workToTime(workUnits)
-{
+function workToTime(workUnits) {
 	var isNegative = workUnits < 0 ? '-' : '';
 	var minutes = workUnits % 60;
 	var hours = (workUnits - minutes) / 60;
@@ -81,40 +70,24 @@ function workToTime(workUnits)
 
 module.exports.workToTime = workToTime;
 
-function timeToWork(string)
-{
-	var hours = 0,
-		minutes = 0;
+function timeToWork(string) {
+	var hours = 0, minutes = 0;
 
-	var negative = string.match(/^-/) ? -1 : 1;
+	var _hours = string.match(/(-?\d+)h/);
+	var _minutes = string.match(/(-?\d+)m/);
 
-	if (string.contains('h'))
+	if (_hours) hours = Number(_hours[1]);
+	if (_minutes) minutes = Number(_minutes[1]);
+
+	if (!_hours && !_minutes)
 	{
-		hours += Number(string.match(/(\d+)h/)[1]);
-	}
-
-	if (string.contains('m'))
-	{
-		var newMinutes = Number(string.match(/(\d+)m/)[1]);
-		minutes += newMinutes;
-	}
-	else if (!string.contains('h'))
-	{ // If string does not contain minutes or hours
-		if (Number(string) >= 15)
-		{
-			minutes += Number(string);
-		}
-		else
-		{
-			hours += Number(string);
+		var amount = Number(string);
+		if (!isNaN(amount)) {
+			return (amount - amount % 60) / 60 + amount % 60;
 		}
 	}
 
-	// \d matches negative signs, we don't really want that since we have our own handling for negatives.
-	if (hours < 0) hours = -hours;
-	if (minutes < 0) minutes = -minutes;
-
-	return negative * (hours * 60 + minutes);
+	return hours * 60 + minutes;
 }
 
 module.exports.timeToWork = timeToWork;

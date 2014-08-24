@@ -1,13 +1,13 @@
-var globals = require('./globals');
+var globals = require('../globals');
 
 var borderWidth = globals.borderWidth;
 
 var dateHelpers = require('./date-helpers');
 var toMoment = dateHelpers.toMoment;
-var footer = require('./footer');
+var footer = require('..//footer');
 
-var projectHelpers = require('./projects');
-var drawing = require('./project-canvas-draw');
+var projectHelpers = require('./project-helpers');
+var drawing = require('../project-canvas-draw');
 
 
 function dayLoad(dayNo) {

@@ -1,11 +1,11 @@
 var projects = [];
 
-var globals = require('./globals');
-var Project = require('./Project').Project;
+var globals = require('../globals');
+var Project = require('../Project').Project;
 
 var dayHelpers = require('./day-helpers');
 var dateHelpers = require('./date-helpers');
-var footer = require('./footer');
+var footer = require('../footer');
 
 function saveableProjects() {
 	var array = [];

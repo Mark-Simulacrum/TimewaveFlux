@@ -1,8 +1,8 @@
 var globals = require('./globals');
-var dateHelpers = require('./date-helpers');
-var projectCanvas = require('./project-canvas');
-var projects = require('./projects');
-var dayHelpers = require('./day-helpers');
+var dateHelpers = require('./helpers/date-helpers');
+var projectCanvas = require('./helpers/project-canvas-helpers');
+var projects = require('./helpers/project-helpers');
+var dayHelpers = require('./helpers/day-helpers');
 var footer = require('./footer');
 var drawing = require('./project-canvas-draw');
 

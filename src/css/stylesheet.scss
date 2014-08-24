@@ -64,8 +64,8 @@ footer {
 			line-height: 1.5em;
 			.notification {
 				margin: 0;
-				&:before {
-					content: attr(data-messageCount);
+				&.counter:before {
+					content: attr(data-count);
 					padding: 0.2em;
 					margin-right: 0.5em;
 					background-color: rgb(128, 151, 189);

@@ -1,16 +1,16 @@
-require('./pollyfill');
+require('./helpers/pollyfill');
 require('./footer');
 
-require('./projects').loadWork();
+require('./helpers/project-helpers').loadWork();
 
 require('./project-canvas-draw').draw();
 require('./dateline').draw();
 
-require('./project-canvas').init();
+require('./helpers/project-canvas-helpers').init();
 
 require('./event-listeners').add();
 
-var dayHelpers = require('./day-helpers');
+var dayHelpers = require('./helpers/day-helpers');
 var globals = require('./globals');
 dayHelpers.updateDaysPerPage(globals.daysPerPage());
 dayHelpers.updateFirstDay(globals.firstDay());

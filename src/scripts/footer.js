@@ -1,5 +1,5 @@
-var projectCanvas = require('./project-canvas');
-var dateHelpers = require('./date-helpers');
+var projectCanvas = require('./helpers/project-canvas-helpers');
+var dateHelpers = require('./helpers/date-helpers');
 
 var workToTime = dateHelpers.workToTime;
 var dateText = dateHelpers.dateText;
@@ -63,7 +63,7 @@ module.exports.notify = function (message)
 
 	if (notificationsElement.lastElementChild && notificationsElement.lastElementChild.innerHTML == message)
 	{
-		var messageCount = notificationsElement.lastElementChild.getAttribute('data-messageCount');
+		var messageCount = notificationsElement.lastElementChild.getAttribute('data-count');
 		if (messageCount === null)
 		{
 			messageCount = '1';
@@ -72,7 +72,11 @@ module.exports.notify = function (message)
 		{
 			return ++num;
 		});
-		notificationsElement.lastElementChild.setAttribute('data-messageCount', messageCount);
+
+		if (Number(messageCount) > 1)
+			notificationsElement.lastElementChild.classList.add('counter');
+
+		notificationsElement.lastElementChild.setAttribute('data-count', messageCount);
 	}
 	else
 	{
