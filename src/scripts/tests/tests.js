@@ -1,11 +1,8 @@
 var test = require('tape');
-var prettyHrtime = require('pretty-hrtime');
-var util = require('util');
 var printf = require('printf');
 
-var moment = require('moment');
-var dateHelpers = require('../helpers/date-helpers');
 require('../helpers/pollyfill');
+var dateHelpers = require('../helpers/date-helpers');
 
 function random(low, high) {
 	return Math.floor(Math.random() * (high - low) + low);
