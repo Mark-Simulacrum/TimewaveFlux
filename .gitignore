@@ -4,3 +4,5 @@
 /.ackrc
 /.brackets.json
 /.sass-cache/
+/node_modules/
+/build/

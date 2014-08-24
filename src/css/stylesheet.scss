@@ -2,12 +2,21 @@
 	box-sizing: border-box;
 }
 
+@mixin cover-all {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
 html {
-	height: 100%;
-	font-family: Consolas, monaco, monospace;
+	@include cover-all;
+	font-family: Arial;
 }
 
 body {
+	@include cover-all;
 	margin: 0;
 }
 
@@ -15,6 +24,7 @@ footer {
 	position: absolute;
 	left: 0;
 	right: 0;
+	bottom: 0;
 
 	padding: 0 1em;
 	display: table-cell;
@@ -51,11 +61,18 @@ footer {
 			padding-left: 0.5em;
 			overflow-y: auto;
 			white-space: normal;
+			line-height: 1.5em;
 			.notification {
 				margin: 0;
 				&:before {
 					content: attr(data-messageCount);
-					color: red;
+					padding: 0.2em;
+					margin-right: 0.5em;
+					background-color: rgb(128, 151, 189);
+					height: 1em;
+					vertical-align: middle;
+					border-radius: 0.5em;
+					color: white;
 				}
 			}
 		}
@@ -115,4 +132,9 @@ input[type=file] {
 
 canvas {
 	display: block;
+}
+
+#main-canvas {
+	height: auto;
+	width: 100%;
 }

@@ -1,4 +1,5 @@
-"use strict";
+/* jshint ignore:start */
+'use strict';
 // General Helpers
 
 function dayLoad(dayNo)
@@ -42,35 +43,6 @@ function getDay(offsetLeft)
 	var day = Math.floor(offsetLeft / fullDayWidth) + firstDay;
 	if (day < 0) day = 0;
 	return day;
-}
-
-function dateText(dayNo, fullDate)
-{
-	var date = toMoment(dayNo).date() + '';
-	var yearDate = '\n' + toMoment(dayNo).format('YYYY/MM/DD'); // For now, default to day 0 being now (as in, today in real time)
-	if (fullDate)
-	{
-		return yearDate;
-	}
-	else
-	{
-		return date;
-	}
-}
-
-function toMoment(dayNo)
-{
-	return moment(calendarStart, calendarFormat).add(dayNo, 'day').startOf('day');
-}
-
-function fromMoment(moment)
-{
-	return moment.startOf('day').diff(toMoment(0), 'days'); // startOf('day') is necessary, otherwise halfdays and other weird rounds happen
-}
-
-function toDate(moment)
-{
-	return moment.format(calendarFormat);
 }
 
 /*
@@ -144,34 +116,6 @@ function getProjects(dayNo)
 	return foundProjects;
 }
 
-function saveableProjects()
-{
-	var array = [];
-	for (var i = 0; i < projects.length; i++)
-	{
-		var project = projects[i];
-
-		var convertedDayLoad = {};
-
-		for (var day = 0; day < project.dayLoad.length; day++)
-		{
-			convertedDayLoad[toMoment(project.start() + day).format(calendarFormat)] = project.dayLoad[day];
-		}
-
-		array.push(
-		{
-			name: project.name,
-			customer_name: project.customer_name,
-			deadline: toMoment(project.deadline).format(calendarFormat),
-			size: project.size,
-			color: project.color,
-			dayLoad: convertedDayLoad,
-			workDone: project.workDone
-		});
-	}
-	return array;
-}
-
 function workAmount(dayNo)
 {
 	var dayProjects = getProjects(dayNo);
@@ -194,17 +138,17 @@ function timeToWork(string)
 
 	var negative = string.match(/^-/) ? -1 : 1;
 
-	if (string.contains("h"))
+	if (string.contains('h'))
 	{
 		hours += Number(string.match(/(\d+)h/)[1]);
 	}
 
-	if (string.contains("m"))
+	if (string.contains('m'))
 	{
 		var newMinutes = Number(string.match(/(\d+)m/)[1]);
 		minutes += newMinutes;
 	}
-	else if (!string.contains("h"))
+	else if (!string.contains('h'))
 	{ // If string does not contain minutes or hours
 		if (Number(string) >= 15)
 		{
@@ -221,371 +165,6 @@ function timeToWork(string)
 	if (minutes < 0) minutes = -minutes;
 
 	return negative * (hours * 60 + minutes);
-}
-
-function workToTime(workUnits)
-{
-	var isNegative = workUnits < 0 ? '-' : '';
-	var minutes = workUnits % 60;
-	var hours = (workUnits - minutes) / 60;
-
-	minutes = minutes > 0 ? minutes + 'min' : ''; // Convert number to string
-	hours = hours > 0 ? hours + 'h' : ''; // Convert number to string
-	if (!hours && !minutes) return '0';
-
-
-	return isNegative + hours + minutes;
-}
-
-function updateDaysPerPage(newValue)
-{
-	if (newValue > 0)
-	{
-		if (typeof newValue != 'number') newValue = Number(newValue); // Make sure that newValue is a Number.
-		daysPerPage = newValue;
-		document.getElementById('day_amount').value = daysPerPage;
-		fullDayWidth = screenWidth / daysPerPage;
-		//scrollbar.max = dayCount - daysPerPage;
-		draw();
-	}
-}
-
-function updateFirstDay(newValue)
-{
-	if (typeof newValue != 'number') newValue = Number(newValue);
-
-	var oldValue = firstDay;
-
-	if (newValue < 0)
-	{
-		notification('Setting firstDay to the start of time... attempted setting of date before the start of time.');
-		firstDay = 0;
-	}
-	else if (newValue > dayCount)
-	{
-		notification('Setting firstDay to the end of time... attempted setting of date after the end of time.');
-		firstDay = dayCount;
-	}
-	else
-	{ // Everything is OK
-		firstDay = newValue;
-	}
-
-	if (firstDay != oldValue)
-	{
-		notification('First day has been moved ' + toMoment(firstDay).from(toMoment(oldValue), true) + (toMoment(firstDay).isAfter(toMoment(oldValue)) ? " in the future." : " into the past."));
-	}
-
-	document.getElementById('date').value = toMoment(firstDay).format(calendarFormat);
-	draw();
-}
-
-function getDatelineDot(x)
-{
-	for (var i = 0; i < dateline.dots.length; i++)
-	{
-		if (dateline.dots[i].areas[0] < x && x < dateline.dots[i].areas[1])
-		{
-			var distanceFromDot = 0;
-
-			if (x < dateline.dots[i].x - dateline.dotSize)
-			{
-				distanceFromDot = dateline.dots[i].x - dateline.dotSize - x;
-			}
-			else if (x > dateline.dots[i].x + dateline.dotSize)
-			{
-				distanceFromDot = dateline.dots[i].x + dateline.dotSize - x;
-			}
-
-			return {
-				dotNumber: i,
-				onDot: distanceFromDot === 0,
-				distanceFromDot: Math.floor(distanceFromDot)
-			};
-		}
-	}
-	return null;
-}
-
-function getDatelineDayDifference(x)
-{
-	var clickedData = getDatelineDot(x);
-	if (clickedData)
-	{
-		var dotDayDifference = dateline.dots[clickedData.dotNumber].dayDifference;
-		if (clickedData.onDot || dateline.dots[clickedData.dotNumber].type == 'day')
-		{
-			return dotDayDifference;
-		}
-		else
-		{
-			if (dateline.dots[clickedData.dotNumber].type == 'week')
-			{
-				return dotDayDifference + Math.round(clickedData.distanceFromDot * 7 / dateline.interval * -1);
-			}
-			else if (dateline.dots[clickedData.dotNumber].type == 'month')
-			{
-				return dotDayDifference + Math.round(clickedData.distanceFromDot * 10 / dateline.interval * -1);
-			}
-		}
-	}
-
-	return 0; // Return 0 by default
-}
-
-function notification(message)
-{
-	var notificationsElement = footer.querySelector('.notifications-list');
-
-	if (notificationsElement.lastElementChild && notificationsElement.lastElementChild.innerHTML == message)
-	{
-		var messageCount = notificationsElement.lastElementChild.getAttribute("data-messageCount");
-		if (messageCount == null)
-		{
-			messageCount = '(0) ';
-		}
-		messageCount = messageCount.replace(/\d+/, function (num)
-		{
-			return ++num;
-		});
-		notificationsElement.lastElementChild.setAttribute("data-messageCount", messageCount);
-	}
-	else
-	{
-		var notification = document.createElement('p');
-		notification.innerHTML = message;
-		notification.classList.add('notification');
-		notificationsElement.appendChild(notification);
-	}
-
-	if (notificationsElement.childNodes.length == 1000)
-	{
-		notificationsElement.removeChild(notificationsElement.childNodes[0]);
-	}
-
-	notificationsElement.scrollTop = notificationsElement.scrollHeight; // Scroll to bottom
-}
-
-function addEventListeners()
-{
-	var projectInput = document.querySelector('footer .project #workInput');
-
-	var buttonDone = document.getElementById('done');
-	var dateInput = document.getElementById('date');
-
-	//	 If in project section, no need to check for selectedProject as we cannot click anything there w/o selecting a project.
-	buttonDone.addEventListener('click', function ()
-	{
-		if (projectInput.value === 0 || !projectInput.value) return;
-
-		var inputWorkUnits = timeToWork(projectInput.value);
-
-		if (inputWorkUnits < 0 && -inputWorkUnits > selectedProject.project.workDone)
-		{
-			notification('Input of ' + projectInput.value + ' is subtracting too much from the current amount of finished work. Please change.');
-			return;
-		}
-
-		if (selectedProject.project.workDone + inputWorkUnits > selectedProject.project.size())
-		{
-			var answer = confirm('Do you wish to mark ' + selectedProject.project.name + ' completely done?');
-			if (answer)
-			{
-				inputWorkUnits = selectedProject.project.size() - selectedProject.project.workDone;
-			}
-			else
-			{
-				return;
-			}
-		}
-
-		selectedProject.project.workDone += inputWorkUnits;
-		projectInput.value = '';
-		addSelectedInfo(selectedProject.project);
-
-		saveWork();
-		draw();
-	}, false);
-
-	document.getElementById('spread').addEventListener('click', function ()
-	{
-		selectedProject.project.spread();
-	}, false);
-
-	document.getElementById('collapse').addEventListener('click', function () {
-		selectedProject.project.collapse(selectedProject.dayClicked);
-	}, false);
-
-	document.getElementById('change-work').addEventListener('click', function ()
-	{
-		if (projectInput.value === 0 || !projectInput.value) return;
-
-		var inputWorkUnits = timeToWork(projectInput.value);
-
-		selectedProject.project.changeWork(inputWorkUnits);
-	}, false);
-
-	document.getElementById('project_center').addEventListener('click', function (e)
-	{
-		var project = selectedProject.project;
-		var middleDay = firstDay + daysPerPage / 2;
-		var middleProject = project.firstWork() + project.dayLoadLength() / 2;
-
-		updateFirstDay(firstDay + Math.floor(middleProject - middleDay));
-	}, false);
-	document.getElementById('project_start').addEventListener('click', function (e)
-	{
-		updateFirstDay(selectedProject.project.start());
-	}, false);
-	document.getElementById('project_deadline').addEventListener('click', function (e)
-	{
-		updateFirstDay(selectedProject.project.end() - daysPerPage);
-	}, false);
-
-	document.getElementById('change_start-deadline').addEventListener('click', function ()
-	{
-		var project = selectedProject.project;
-		var newStart = fromMoment(moment(document.getElementById('start').value, calendarFormat));
-		var newDeadline = fromMoment(moment(document.getElementById('deadline').value, calendarFormat));
-
-		project.changeStart(newStart);
-		project.changeDeadline(newDeadline);
-
-		addSelectedInfo(project);
-	}, false);
-
-	dateInput.addEventListener('change', function ()
-	{
-		updateFirstDay(fromMoment(moment(dateInput.value, calendarFormat)));
-	}, false);
-
-	document.getElementById('date_minus_31').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay - 31);
-	}, false);
-	document.getElementById('date_minus_7').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay - 7);
-	}, false);
-	document.getElementById('date_minus_1').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay - 1);
-	}, false);
-	document.getElementById('date_add_1').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay + 1);
-	}, false);
-	document.getElementById('date_add_7').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay + 7);
-	}, false);
-	document.getElementById('date_add_31').addEventListener('click', function ()
-	{
-		updateFirstDay(firstDay + 31);
-	}, false);
-
-	document.getElementById('day_amount').addEventListener('change', function (e)
-	{
-		// var newDaysPerPage = Number(e.target.value);
-		// var futureMiddle = newDaysPerPage/2; // futureMiddle w/o adjustments
-		// var pastMiddle = daysPerPage/2;
-		// var adjustment = 0;
-		// var delta = Math.ceil((daysPerPage - newDaysPerPage)/2);
-
-		// if (newDaysPerPage % 2 == 0) { // From a,b,c to b,c (odd to even)
-		// 	adjustment = futureMiddle > pastMiddle ? 0 : +1;
-		// } else { // From b,c to a,b,c (even to odd)
-		// 	adjustment = futureMiddle > pastMiddle ? -1 :  0;
-		// }
-
-		// console.log(firstDay, newDaysPerPage, pastMiddle, futureMiddle, delta, adjustment);
-
-		// updateDaysPerPage(newDaysPerPage);
-		// updateFirstDay(firstDay + delta + adjustment);
-
-		// var futureDaysPerPage = Number(e.target.value);
-		// var pastMiddle = firstDay + daysPerPage/2;
-		// var futureMiddle = firstDay + futureDaysPerPage/2;
-
-		// var futureFirstDay = futureMiddle - daysPerPage/2;
-
-		// updateDaysPerPage(futureDaysPerPage);
-
-		updateDaysPerPage(e.target.value);
-	}, false);
-
-	document.getElementById('today').addEventListener('click', function ()
-	{
-		updateFirstDay(fromMoment(moment()) - Math.floor(daysPerPage/2));
-	}, false);
-
-	document.getElementById('undo').addEventListener('click', function ()
-	{
-		if (localStorage.currentVersion > 0)
-		{
-			--localStorage.currentVersion;
-			displayVersion();
-			loadWork();
-			draw();
-		}
-		else
-		{
-			notification('Cannot undo from version 0.');
-		}
-	}, false);
-
-	document.getElementById('redo').addEventListener('click', function ()
-	{
-		if (localStorage.currentVersion - 1 < JSON.parse(localStorage.savedProjects).length)
-		{ // At least 2 less than the amount of history
-			++localStorage.currentVersion;
-			displayVersion();
-			loadWork();
-			draw();
-		}
-		else
-		{
-			notification('Cannot go past the last saved work.');
-		}
-	}, false);
-
-	document.getElementById('export').addEventListener('click', function ()
-	{
-		var blob = new Blob([JSON.stringify(saveableProjects(), undefined, 4)],
-		{
-			type: 'text/json;charset=utf-8'
-		});
-		saveAs(blob, "ProjectConfig-exported.json");
-	}, false);
-
-	document.getElementById('import').addEventListener('click', function ()
-	{
-		document.getElementById('import_input').click();
-	}, false);
-
-	document.getElementById('import_input').addEventListener('change', function (e)
-	{
-		var file = e.target.files[0];
-		if (file)
-		{
-			var reader = new FileReader();
-
-			reader.onloadstart = function (e)
-			{
-				notification('Starting file upload of ' + file.name);
-			};
-
-			reader.onload = function (e)
-			{
-				notification('Finished file upload of ' + file.name);
-				var fileContent = reader.result;
-				loadSavedFile(fileContent);
-				document.getElementById('import_input').value = ''; // Clear the input so that calls change event is called even when file name has not changed
-			};
-
-			reader.readAsText(file); // Actually read the file
-		}
-	}, false);
 }
 
 function onResizeWindow()
@@ -652,13 +231,13 @@ function setupLocalStorage()
 {
 	if (!localStorage.savedProjects)
 	{
-		notification('Saving current work as first work saved.');
+		footer.notify('Saving current work as first work saved.');
 		localStorage.savedProjects = JSON.stringify([saveableProjects()]); // Set this to empty array, below logic will handle
 	}
 
 	if (!localStorage.currentVersion)
 	{
-		notification('No current version, defaulting to last element.');
+		footer.notify('No current version, defaulting to last element.');
 		var futureCurrentVersion = JSON.parse(localStorage.savedProjects).length - 1;
 		localStorage.currentVersion = futureCurrentVersion >= 0 ? futureCurrentVersion : 0;
 	}
@@ -702,21 +281,6 @@ function loadWork()
 	draw(); // Once we've loaded work, draw.
 }
 
-function tooltip(x, y, text)
-{
-	var element = document.querySelector('#tooltip');
-	element.innerHTML = text;
-	element.style.left = x + 'px';
-	element.style.top = y + 'px';
-	element.style.display = 'inline-block';
-}
-
-function clearTooltip()
-{
-	var element = document.querySelector('#tooltip');
-	element.style.display = 'none';
-}
-
 // Polyfills
 
 if (!Array.prototype.contains)
@@ -749,3 +313,4 @@ Array.prototype.trim = function (value)
 	}
 	return array;
 };
+/* jshint ignore:end */

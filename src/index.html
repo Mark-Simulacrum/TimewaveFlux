@@ -2,23 +2,15 @@
 <html>
 	<head>
 		<title>ProjectFlow</title>
-		<link rel="stylesheet" href="css/stylesheet.css">
-		<script defer src="bower_components/prefixfree/prefixfree.min.js"></script>
-		<script defer src="bower_components/moment/moment.js"></script>
-		<script defer src="bower_components/FileSaver/FileSaver.js"></script>
-
-		<meta charset="utf-8" />
-
-		<script src="scripts/main.js"></script>
-		<script src="scripts/Project.js"></script>
-		<script src="scripts/helpers.js"></script>
+		<link rel='stylesheet' href='stylesheet.css'>
+		<meta charset='utf-8' />
 	</head>
 	<body>
 		<div id='tooltip'></div>
-		<canvas id='header-canvas' height="30"></canvas>
+		<canvas id='header-canvas' height='30'></canvas>
 		<canvas id='main-canvas'></canvas>
-		<footer>
-			<section class='project'>
+		<footer class='noSelect'>
+			<section class='project' style='visibility: hidden;'>
 				<div class='noWrap'>
 					<span id='name'>Name</span>
 					<span class='projectMod'>
@@ -32,13 +24,13 @@
 				</div>
 				<div class='noWrap'>
 					from
-					<input class='date' id='start' type="text" /> to
-					<input class='date' id="deadline" type="text" />
-					<button id="change_start-deadline">Change</button>
+					<input class='date' id='start' type='text' /> to
+					<input class='date' id='deadline' type='text' />
+					<button id='change_start-deadline'>Change</button>
 				</div>
 				<div class='noWrap'>
 					Time: <span id='hours'>?/?</span>
-					<div class="right">Days: <span id='days'>?/?</span>
+					<div class='right'>Days: <span id='days'>?/?</span>
 					</div>
 				</div>
 				<div class='noWrap'>
@@ -48,22 +40,22 @@
 					<button id='collapse'>Collapse</button>
 					<button id='change-work'>Add</button>
 				</div>
-				<div class="noWrap">
-					<div class="left">
-						Amount of work in day clicked: <span id="workInDayClicked"></span>
+				<div class='noWrap'>
+					<div class='left'>
+						Amount of work in day clicked: <span id='workInDayClicked'></span>
 					</div>
 				</div>
 			</section>
 			<section class='navigation'>
 				<div class='center'>
 					<div class='noWrap'>
-						<button id="date_minus_31">-31</button>
-						<button id="date_minus_7">-7</button>
-						<button id="date_minus_1">-1</button>
+						<button id='date_minus_31'>-31</button>
+						<button id='date_minus_7'>-7</button>
+						<button id='date_minus_1'>-1</button>
 						<input class='date' id='date' />
-						<button id="date_add_1">+1</button>
-						<button id="date_add_7">+7</button>
-						<button id="date_add_31">+31</button>
+						<button id='date_add_1'>+1</button>
+						<button id='date_add_7'>+7</button>
+						<button id='date_add_31'>+31</button>
 					</div>
 					<div class='noWrap'>
 						<input min='1' step='1' type='number' id='day_amount' /> days
@@ -76,12 +68,13 @@
 					<button id='redo'>Redo</button>
 					<button id='export'>Export</button>
 					<button id='import'>Import</button>
-					<button onclick="localStorage.clear()">Clear LocalStorage/History</button>
+					<button onclick='localStorage.clear()'>Clear LocalStorage/History</button>
 					<input type='file' id='import_input' />
 				</div>
 				<span id='version'>v?</span>
 			</section>
 			<section class='notifications-list'></section>
 		</footer>
+		<script src='app.js'></script>
 	</body>
 </html>

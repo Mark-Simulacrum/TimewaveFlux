@@ -1,0 +1,29 @@
+{
+  "license": "MIT",
+  "issues": {
+    "url": "http://github.com/Mark-Simulacrum/TimewaveFlux/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mark-Simulacrum/TimewaveFlux.git",
+    "branch": "",
+    "SHA": ""
+  },
+  "devDependencies": {
+    "assert": "^1.1.1",
+    "browser-filesaver": "^1.0.0",
+    "browserify": "^5.10.0",
+    "gulp-ignore": "^1.2.0",
+    "gulp-jshint": "^1.8.4",
+    "gulp-notify": "^1.4.2",
+    "gulp-sass": "^0.7.3",
+    "gulp-util": "^3.0.0",
+    "jshint-stylish": "^0.4.0",
+    "moment": "^2.8.1",
+    "pretty-hrtime": "^0.2.1",
+    "require-dir": "^0.1.0",
+    "tap-spec": "^0.2.1",
+    "tape": "^2.14.0",
+    "vinyl-source-stream": "^0.1.1"
+  }
+}
