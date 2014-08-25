@@ -4,7 +4,6 @@ var dateHelpers = require('./helpers/date-helpers'),
 	projectHelpers = require('./helpers/project-helpers'),
 	footer = require('./footer'),
 	globals = require('./globals'),
-	tests = require('./tests/tests'),
 
 	projectCanvas = require('./helpers/project-canvas-helpers'),
 
@@ -20,7 +19,16 @@ function Project(args) {
 	this.deadline = dateHelpers.fromMomentToDay(dateHelpers.fromDateToMoment(args.deadline));
 	this.color = args.color || 'aqua';
 
-	var dayLoadKeys = Object.keys(args.dayLoad);
+	this.loadDayLoad(args.dayLoad);
+
+	this.workDone = args.workDone || 0;
+
+	// Initialize variables
+	this.y = [];
+}
+
+Project.prototype.loadDayLoad = function (inputDayLoad) {
+	var dayLoadKeys = Object.keys(inputDayLoad);
 
 	dayLoadKeys.sort(function (a, b) {
 		return dateHelpers.fromDateToMoment(a).isAfter(dateHelpers.fromDateToMoment(b));
@@ -29,19 +37,14 @@ function Project(args) {
 	this.dayLoad = [];
 
 	for (var keyID = 0; keyID <= this.deadline - dateHelpers.fromDateToDay(dayLoadKeys[0]); keyID++) {
-		var value = args.dayLoad[dayLoadKeys[keyID]];
+		var value = inputDayLoad[dayLoadKeys[keyID]];
 		if (value) {
 			this.dayLoad[keyID] = value;
 		} else {
 			this.dayLoad[keyID] = 0;
 		}
 	}
-
-	this.workDone = args.workDone || 0;
-
-	// Initialize variables
-	this.y = [];
-}
+};
 
 Project.prototype.start = function () {
 	return this.end() - this.dayLoad.length;
@@ -95,8 +98,8 @@ Project.prototype.toHeight = function (load) {
 
 Project.prototype.draw = function (dayNo, offsetTop) {
 	assert(offsetTop > 0);
+
 	var selectedProject = projectCanvas.selectedProject();
-	var moused = projectCanvas.moused();
 
 	var offsetLeft = dayHelpers.dayStart(dayNo);
 	var projectHeight = this.height(dayNo);
@@ -106,11 +109,7 @@ Project.prototype.draw = function (dayNo, offsetTop) {
 	// Don't need to store x because it is dayStart(dayNo).
 	this.y[relativeDayNo] = offsetTop;
 
-	if (!projectHeight) {
-		return offsetTop;
-	}
-
-	// Draws rectangle
+	// Draws project rectangle
 	ctx.fillStyle = this.color;
 	ctx.fillRect(offsetLeft, offsetTop, dayHelpers.dayWidth(), projectHeight);
 
@@ -119,27 +118,30 @@ Project.prototype.draw = function (dayNo, offsetTop) {
 	ctx.fillRect(offsetLeft, offsetTop, dayHelpers.dayWidth(), globals.borderWidth);
 	ctx.fillRect(offsetLeft, offsetTop + projectHeight, dayHelpers.dayWidth(), globals.borderWidth);
 
+	this.drawText(projectHeight, offsetTop, offsetLeft, dayNo);
 
-	if ((selectedProject && selectedProject.project == this) || (moused && moused.project == this)) {
+	if (selectedProject && selectedProject.project == this) {
 		this.drawLadder(dayNo);
 	}
 	this.drawHoursDone(dayNo);
 
-	// Adds text to project
-	ctx.textAlign = 'center';
-	ctx.textBaseline = 'top';
-	if (projectHeight >= globals.minimumWork) {
-		ctx.fillText(this.name, offsetLeft + dayHelpers.dayWidth() / 2, offsetTop, dayHelpers.dayWidth());
-		if (projectHeight >= globals.minimumWork * 2) {
-			var workDoneOutOfTotal = dateHelpers.workToTime(this.doneLoad(dayNo)) + '/' + dateHelpers.workToTime(this.load(dayNo));
-			ctx.textBaseline = 'bottom';
-			ctx.fillText(workDoneOutOfTotal, offsetLeft + dayHelpers.dayWidth() / 2, offsetTop + projectHeight, dayHelpers.dayWidth());
-		}
-	}
 
 	offsetTop += projectHeight;
 
 	return offsetTop;
+};
+
+Project.prototype.drawText = function (projectHeight, offsetTop, offsetLeft, dayNo) {
+	if (projectHeight >= globals.minimumWork) {
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'top';
+		ctx.fillText(this.name, offsetLeft + dayHelpers.dayWidth() / 2, offsetTop, dayHelpers.dayWidth());
+		if (projectHeight >= globals.minimumWork * 2) {
+			ctx.textBaseline = 'bottom';
+			ctx.fillText(dateHelpers.workToTime(this.doneLoad(dayNo)) + '/' + dateHelpers.workToTime(this.load(dayNo)),
+				offsetLeft + dayHelpers.dayWidth() / 2, offsetTop + projectHeight, dayHelpers.dayWidth());
+		}
+	}
 };
 
 Project.prototype.drawLadder = function (dayNo) {
@@ -154,8 +156,6 @@ Project.prototype.drawLadder = function (dayNo) {
 };
 
 Project.prototype.doneLoad = function (dayNo) {
-	assert(dayNo <= this.deadline);
-
 	var workDone = this.workDone;
 
 	for (var i = 0; i < this.dayLoad.length && i < this.relativeDayNo(dayNo); i++) {
@@ -222,7 +222,7 @@ Project.prototype.mouseLoad = function (dayNo, y) {
 };
 
 Project.prototype.updateDayLoad = function (dayNo) {
-	assert(tests.everythingIsOkay());
+	assert(this.test());
 
 	var clicked = projectCanvas.clicked();
 
@@ -287,7 +287,7 @@ Project.prototype.updateDayLoad = function (dayNo) {
 	clicked.previous = clickedPrevious;
 	clicked.current = clickedCurrent;
 
-	assert(tests.everythingIsOkay());
+	assert(this.test());
 
 	drawing.draw();
 };

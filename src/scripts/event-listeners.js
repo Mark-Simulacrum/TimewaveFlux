@@ -1,7 +1,7 @@
 var globals = require('./globals');
 var dateHelpers = require('./helpers/date-helpers');
 var projectCanvas = require('./helpers/project-canvas-helpers');
-var projects = require('./helpers/project-helpers');
+var projectHelpers = require('./helpers/project-helpers');
 var dayHelpers = require('./helpers/day-helpers');
 var footer = require('./footer');
 var drawing = require('./project-canvas-draw');
@@ -47,7 +47,7 @@ module.exports.add = function () {
 
 		projectCanvas.eventEmitter.emit('selectedProjectChanged', selectedProject);
 
-		projects.saveWork();
+		projectHelpers.saveWork();
 		drawing.draw();
 	}, false);
 
@@ -133,7 +133,7 @@ module.exports.add = function () {
 	document.getElementById('undo').addEventListener('click', function () {
 		if (localStorage.currentVersion > 0) {
 			--localStorage.currentVersion;
-			projectCanvas.loadWork();
+			projectHelpers.loadWork();
 			drawing.draw();
 		} else {
 			footer.notify('Cannot undo from version 0.');
@@ -143,7 +143,7 @@ module.exports.add = function () {
 	document.getElementById('redo').addEventListener('click', function () {
 		if (localStorage.currentVersion - 1 < JSON.parse(localStorage.savedProjects).length) { // At least 2 less than the amount of history
 			++localStorage.currentVersion;
-			projectCanvas.loadWork();
+			projectHelpers.loadWork();
 			drawing.draw();
 		} else {
 			footer.notify('Cannot go past the last saved work.');
@@ -151,7 +151,7 @@ module.exports.add = function () {
 	}, false);
 
 	document.getElementById('export').addEventListener('click', function () {
-		var blob = new Blob([JSON.stringify(projects.saveableProjects(), undefined, 4)], {
+		var blob = new Blob([JSON.stringify(projectHelpers.saveableWork(), undefined, 4)], {
 			type: 'text/json;charset=utf-8'
 		});
 		saveAs(blob, 'ProjectConfig-exported.json');
@@ -170,11 +170,16 @@ module.exports.add = function () {
 				footer.notify('Starting file upload of ' + file.name);
 			};
 
+			reader.onprogress = function (prog) {
+				console.log(prog);
+			};
+
 			reader.onload = function () {
 				footer.notify('Finished file upload of ' + file.name);
 				var fileContent = reader.result;
-				projects.loadProjects(JSON.parse(fileContent));
+				projectHelpers.setProjects(projectHelpers.loadProjects(JSON.parse(fileContent)));
 				document.getElementById('import_input').value = ''; // Clear the input so that calls change event is called even when file name has not changed
+				drawing.draw();
 			};
 
 			reader.readAsText(file); // Actually read the file

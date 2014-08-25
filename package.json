@@ -3,6 +3,9 @@
   "issues": {
     "url": "http://github.com/Mark-Simulacrum/TimewaveFlux/issues"
   },
+  "scripts": {
+    "test": "node src/scripts/tests/tests.js | tap-spec"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Mark-Simulacrum/TimewaveFlux.git",

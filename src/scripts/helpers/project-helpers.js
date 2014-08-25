@@ -7,6 +7,12 @@ var dayHelpers = require('./day-helpers');
 var dateHelpers = require('./date-helpers');
 var footer = require('../footer');
 
+function setProjects(newProjects) {
+	projects = newProjects;
+	module.exports.projects = projects;
+	global.projects = projects;
+}
+
 function saveableProjects() {
 	var array = [];
 	for (var i = 0; i < projects.length; i++) {
@@ -15,13 +21,13 @@ function saveableProjects() {
 		var convertedDayLoad = {};
 
 		for (var day = 0; day < project.dayLoad.length; day++) {
-			convertedDayLoad[dateHelpers.fromMomentToDate(project.start() + day)] = project.dayLoad[day];
+			convertedDayLoad[dateHelpers.fromDayToString(project.start() + day)] = project.dayLoad[day];
 		}
 
 		array.push({
 			name: project.name,
 			customerName: project.customerName,
-			deadline: dateHelpers.fromMomentToDate(project.deadline),
+			deadline: dateHelpers.fromDayToString(project.deadline),
 			size: project.size,
 			color: project.color,
 			dayLoad: convertedDayLoad,
@@ -37,7 +43,7 @@ function loadProjects(savedProjects) {
 	if (savedProjects === undefined || savedProjects === null || savedProjects.length === 0) { // Load projects from configuration
 		var request = new XMLHttpRequest();
 		request.open('GET', '/ProjectConfig.json', false);
-		request.send(null);
+		request.send();
 		savedProjects = JSON.parse(request.responseText);
 		for (i = 0; i < savedProjects.length; i++) {
 			newProjects.push(new Project(savedProjects[i]));
@@ -55,7 +61,7 @@ function loadProjects(savedProjects) {
 function setupLocalStorage() {
 	if (!localStorage.savedProjects) {
 		footer.notify('Saving current work as first work saved.');
-		localStorage.savedProjects = JSON.stringify([saveableProjects()]); // Set this to empty array, below logic will handle
+		localStorage.savedProjects = JSON.stringify([]); // Set this to empty array, below logic will handle
 	}
 
 	if (!localStorage.currentVersion) {
@@ -66,37 +72,43 @@ function setupLocalStorage() {
 }
 
 function saveWork() {
-	if (globals.debug) return;
+	if (globals.debug()) return;
 	setupLocalStorage();
 
 	var currentVersion = Number(localStorage.currentVersion);
 	var savedProjects = JSON.parse(localStorage.savedProjects);
 	var currentProjects = saveableProjects();
 
-	if (JSON.stringify(savedProjects[currentVersion]) == JSON.stringify(currentProjects)) return; // If we the saved work is the same as the current work, we can exit.
 	if (!savedProjects) savedProjects = [];
+	if (JSON.stringify(savedProjects[currentVersion]) === JSON.stringify(currentProjects)) return; // If we the saved work is the same as the current work, we can exit.
 
 	savedProjects = savedProjects.slice(0, currentVersion + 1); // Add 1 bc slice removes currVer otherwise. // Removes anything past currentVersion.
 	savedProjects.push(currentProjects); // Add current projects to savedProjects
 
 	localStorage.savedProjects = JSON.stringify(savedProjects);
 	localStorage.currentVersion = savedProjects.length - 1;
+	updateVersionElement();
 }
+
+function updateVersionElement() {
+	document.getElementById('version').innerHTML = 'v' + localStorage.currentVersion;
+}
+
+module.exports.updateVersionElement = updateVersionElement;
 
 function loadWork() {
 	var savedProjects;
 	setupLocalStorage();
 
-	if (globals.debug) {
+	if (globals.debug()) {
 		savedProjects = null;
 	} else {
 		var currentVersion = Number(localStorage.currentVersion); // localStorage contains string, we should convert to number
 		savedProjects = JSON.parse(localStorage.savedProjects)[currentVersion];
 	}
 
-	projects = loadProjects(savedProjects);
-	module.exports.projects = projects;
-	window.projects = projects;
+	updateVersionElement();
+	setProjects(loadProjects(savedProjects));
 }
 
 module.exports.getProjects = function (dayNo) {
@@ -129,7 +141,11 @@ module.exports.getProjectByCoordinates = function getProjectByCoordinates(x, y) 
 };
 
 module.exports.projects = projects;
+module.exports.setProjects = setProjects;
 module.exports.loadProjects = loadProjects;
 module.exports.loadWork = loadWork;
 module.exports.saveWork = saveWork;
 module.exports.saveableWork = saveableProjects;
+
+global.loadWork = loadWork;
+global.saveWork = saveWork;

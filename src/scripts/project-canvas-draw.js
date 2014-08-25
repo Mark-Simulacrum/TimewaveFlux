@@ -52,16 +52,15 @@ function drawDays() {
 		var clicked = projectCanvas.clicked();
 
 		if (clicked && clicked.project.start() <= dayNo && dayNo <= clicked.project.deadline) {
-			ctx.fillStyle = 'rgba(0, 153, 74, 0.2)';
+			ctx.fillStyle = 'hsla(113, 100%, 40%, 0.3)';
 			ctx.fillRect(dayHelpers.dayStart(dayNo), 0, dayHelpers.dayWidth(), ctx.canvas.height);
 		}
 
-
 		ctx.font = globals.fontStack;
+		ctx.fillStyle = 'black';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		ctx.fillStyle = 'black';
-		ctx.fillText((globals.debug ? dayNo + ' ' : '') + dateHelpers.dateText(dayNo, true), dayHelpers.dayStart(dayNo) + dayWidth() / 2, globals.dayTitleHeight / 2 + globals.borderWidth, dayWidth());
+		ctx.fillText((globals.debug() ? dayNo + ' ' : '') + dateHelpers.dateText(dayNo, true), dayHelpers.dayStart(dayNo) + dayWidth() / 2, globals.dayTitleHeight / 2 + globals.borderWidth, dayWidth());
 
 		drawProjects(dayNo);
 		drawBorder(dayNo);

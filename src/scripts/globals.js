@@ -40,5 +40,5 @@ module.exports.workUnitHeight = 1;
 module.exports.borderWidth = 1;
 
 module.exports.debug = function () {
-	return window.location.hash.indexOf('debug') === -1;
+	return window.location.hash.indexOf('debug') !== -1;
 };
