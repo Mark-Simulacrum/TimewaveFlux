@@ -13,8 +13,7 @@ function testTimeToWork(t, string, expectedWorkAmount, message) {
 	var workAmountResult = dateHelpers.timeToWork(string);
 
 	var str = message !== undefined ?
-			printf('%s -> `%s` to work ; got `%s` ; expected `%s`.', message, string, workAmountResult, expectedWorkAmount)
-		:	printf('`%s` to work ; got `%s` ; expected `%s`.', string, workAmountResult, expectedWorkAmount);
+		printf('%s -> `%s` to work ; got `%s` ; expected `%s`.', message, string, workAmountResult, expectedWorkAmount) : printf('`%s` to work ; got `%s` ; expected `%s`.', string, workAmountResult, expectedWorkAmount);
 
 	t.ok(workAmountResult === expectedWorkAmount, str);
 }
@@ -69,11 +68,27 @@ test('Incorrect input conversion', function (t) {
 	testTimeToWork(t, '-h-m', 0, 'Negative symbol without numbers');
 
 
-	for (var i = 0 ; i < testAmount ; i++)
-	{
+	for (var i = 0; i < testAmount; i++) {
 		var amount = random(-randomSize, randomSize);
 		testTimeToWork(t, String(amount), (amount - amount % 60) / 60 + amount % 60, 'No identifiers.');
 	}
+
+	t.end();
+});
+
+test('Pollyfills', function (t) {
+	t.ok('test'.contains('test'), 'Check string containing string');
+	t.notOk('te st'.contains('test'), 'Check that strings with spaces do not match.');
+
+	t.ok([1, 0, 1].contains(1), 'Check simple contains in array.');
+	t.notOk([{
+		val: 1
+	}].contains({
+		val: 2
+	}), 'See if contains fails on objects.');
+
+	t.deepEqual([0, 1, 0].trim(0), [1], 'Test trimming of 0s from array.');
+	t.deepEqual([0, 1, 0, 1, 0].trim(0), [1, 0, 1], 'Test internal zero in array.');
 
 	t.end();
 });
