@@ -1,5 +1,4 @@
 module.exports.headerCtx = document.getElementById('header-canvas').getContext('2d');
-//module.exports.ctx = document.getElementById('main-canvas').getContext('2d');
 module.exports.footer = document.getElementsByTagName('footer')[0];
 
 var _firstDay = 0;
@@ -40,5 +39,5 @@ module.exports.workUnitHeight = 1;
 module.exports.borderWidth = 1;
 
 module.exports.debug = function () {
-	return window.location.hash.indexOf('debug') !== -1;
+	return window.location.hash.contains('debug');
 };
