@@ -7,7 +7,7 @@ var toMoment = dateHelpers.toMoment;
 var footer = require('..//footer');
 
 var projectHelpers = require('./project-helpers');
-var drawing = require('../project-canvas-draw');
+var drawing = require('../project-draw');
 
 
 function dayLoad(dayNo) {
@@ -76,6 +76,7 @@ function updateFirstDay(newValue) {
 	}
 
 	document.getElementById('date').value = dateHelpers.fromDayToString(globals.firstDay());
+
 	drawing.draw();
 }
 

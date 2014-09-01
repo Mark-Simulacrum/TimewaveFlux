@@ -71,6 +71,10 @@ function setupLocalStorage() {
 	}
 }
 
+function updateVersionElement() {
+	document.getElementById('version').innerHTML = 'v' + localStorage.currentVersion;
+}
+
 function saveWork() {
 	if (globals.debug()) return;
 	setupLocalStorage();
@@ -88,10 +92,6 @@ function saveWork() {
 	localStorage.savedProjects = JSON.stringify(savedProjects);
 	localStorage.currentVersion = savedProjects.length - 1;
 	updateVersionElement();
-}
-
-function updateVersionElement() {
-	document.getElementById('version').innerHTML = 'v' + localStorage.currentVersion;
 }
 
 module.exports.updateVersionElement = updateVersionElement;
@@ -116,7 +116,7 @@ module.exports.getProjects = function (dayNo) {
 
 	for (var i = 0; i < projects.length; i++) {
 		var project = projects[i];
-		if (project.start() <= dayNo && dayNo < project.end()) { // project.end == project.deadline + 1
+		if (project.load(dayNo) > 0) {
 			foundProjects.push(project);
 		}
 	}

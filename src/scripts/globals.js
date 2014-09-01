@@ -1,5 +1,5 @@
 module.exports.headerCtx = document.getElementById('header-canvas').getContext('2d');
-module.exports.ctx = document.getElementById('main-canvas').getContext('2d');
+//module.exports.ctx = document.getElementById('main-canvas').getContext('2d');
 module.exports.footer = document.getElementsByTagName('footer')[0];
 
 var _firstDay = 0;

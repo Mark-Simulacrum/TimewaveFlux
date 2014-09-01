@@ -1,4 +1,3 @@
-var projectCanvas = require('./helpers/project-canvas-helpers');
 var dateHelpers = require('./helpers/date-helpers');
 
 var workToTime = dateHelpers.workToTime;
@@ -7,7 +6,7 @@ var now = require('./globals').now;
 
 var footer = document.querySelector('footer');
 
-projectCanvas.eventEmitter.addListener('selectedProjectChanged', function (selectedProject) {
+function addSelectedInfo(selectedProject) {
 	var projectElement = document.querySelector('footer .project');
 	if (selectedProject === null) {
 		projectElement.style.visibility = 'hidden';
@@ -20,14 +19,10 @@ projectCanvas.eventEmitter.addListener('selectedProjectChanged', function (selec
 
 	projectElement.style.visibility = 'visible';
 
-	if (selectedProject && selectedProject.project == project)
-	{
-		if (selectedProject.ctrl)
-		{
+	if (selectedProject && selectedProject.project == project) {
+		if (selectedProject.ctrl) {
 			document.getElementById('workInput').value = workToTime(project.load(selectedProject.dayClicked));
-		}
-		else
-		{
+		} else {
 			var unitsAbove = project.loadBefore(selectedProject.dayClicked, (project.load(selectedProject.dayClicked) - selectedProject.load)); // loadBefore allows us to calculate over multiple days
 			var minutesAbove = unitsAbove % 60;
 			var hoursAbove = (unitsAbove - minutesAbove) / 60;
@@ -37,13 +32,11 @@ projectCanvas.eventEmitter.addListener('selectedProjectChanged', function (selec
 
 	var daysBeforeNow = 0;
 
-	if (project.relativeDayNo(now) > 0)
-	{
+	if (project.relativeDayNo(now) > 0) {
 		daysBeforeNow = project.relativeDayNo(now);
 	}
 
-	if (daysBeforeNow > project.dayLoad.length)
-	{
+	if (daysBeforeNow > project.dayLoad.length) {
 		daysBeforeNow = project.dayLoad.length;
 	}
 
@@ -54,22 +47,17 @@ projectCanvas.eventEmitter.addListener('selectedProjectChanged', function (selec
 	document.getElementById('days').innerHTML = daysBeforeNow + '/' + project.dayLoad.length; // Add 1 to now b/c now includes now.
 	document.getElementById('hours').innerHTML = workToTime(project.workDone) + ' / ' + workToTime(project.size());
 	document.getElementById('workInDayClicked').innerHTML = workToTime(project.load(selectedProject.dayClicked));
-}, false);
+}
 
-
-module.exports.notify = function (message)
-{
+function notify(message) {
 	var notificationsElement = footer.querySelector('.notifications-list');
 
-	if (notificationsElement.lastElementChild && notificationsElement.lastElementChild.innerHTML == message)
-	{
+	if (notificationsElement.lastElementChild && notificationsElement.lastElementChild.innerHTML == message) {
 		var messageCount = notificationsElement.lastElementChild.getAttribute('data-count');
-		if (messageCount === null)
-		{
+		if (messageCount === null) {
 			messageCount = '1';
 		}
-		messageCount = messageCount.replace(/\d+/, function (num)
-		{
+		messageCount = messageCount.replace(/\d+/, function (num) {
 			return ++num;
 		});
 
@@ -77,19 +65,19 @@ module.exports.notify = function (message)
 			notificationsElement.lastElementChild.classList.add('counter');
 
 		notificationsElement.lastElementChild.setAttribute('data-count', messageCount);
-	}
-	else
-	{
+	} else {
 		var notification = document.createElement('p');
 		notification.innerHTML = message;
 		notification.classList.add('notification');
 		notificationsElement.appendChild(notification);
 	}
 
-	if (notificationsElement.childNodes.length == 1000)
-	{
+	if (notificationsElement.childNodes.length == 1000) {
 		notificationsElement.removeChild(notificationsElement.childNodes[0]);
 	}
 
 	notificationsElement.scrollTop = notificationsElement.scrollHeight; // Scroll to bottom
-};
+}
+
+module.exports.notify = notify;
+module.exports.addSelectedInfo = addSelectedInfo;

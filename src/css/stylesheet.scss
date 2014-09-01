@@ -20,6 +20,41 @@ body {
 	margin: 0;
 }
 
+.columns {
+	position: relative;
+	user-select: none;
+	$borderColor: #aaa;
+	width: 100%;
+	border-top: 1px solid $borderColor;
+	border-bottom: 1px solid $borderColor;
+
+	.column {
+		border-right: 1px solid $borderColor;
+		height: 100%;
+		float: left;
+		overflow: auto;
+
+		&.beforeNow {
+			background-color: rgba(84, 84, 84, 0.1);
+		}
+
+		&.withinSelectedProject {
+			background-color: hsla(100, 71%, 55%, 0.18);
+		}
+
+		.header {
+			text-align: center;
+			border-bottom: 1px solid $borderColor;
+		}
+
+		.project {
+			border: 1px solid $borderColor;
+			border-radius: 0.5em;
+			margin: 0.5em auto;
+		}
+	}
+}
+
 footer {
 	position: absolute;
 	left: 0;

@@ -13,9 +13,9 @@
     "SHA": ""
   },
   "devDependencies": {
-    "assert": "^1.1.1",
     "browser-filesaver": "^1.0.0",
     "browserify": "^5.10.0",
+    "gulp-autoprefixer": "0.0.10",
     "gulp-ignore": "^1.2.0",
     "gulp-jshint": "^1.8.4",
     "gulp-notify": "^1.4.2",

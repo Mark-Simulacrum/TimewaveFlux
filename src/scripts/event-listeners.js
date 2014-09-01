@@ -1,10 +1,9 @@
 var globals = require('./globals');
 var dateHelpers = require('./helpers/date-helpers');
-var projectCanvas = require('./helpers/project-canvas-helpers');
-var projectHelpers = require('./helpers/project-helpers');
 var dayHelpers = require('./helpers/day-helpers');
+var projectCanvas = require('./project-draw');
+var projectHelpers = require('./helpers/project-helpers');
 var footer = require('./footer');
-var drawing = require('./project-canvas-draw');
 
 var timeToWork = dateHelpers.timeToWork;
 
@@ -45,10 +44,8 @@ module.exports.add = function () {
 		selectedProject.project.workDone += inputWorkUnits;
 		projectInput.value = '';
 
-		projectCanvas.eventEmitter.emit('selectedProjectChanged', selectedProject);
-
 		projectHelpers.saveWork();
-		drawing.draw();
+		projectCanvas.draw();
 	}, false);
 
 	document.getElementById('spread').addEventListener('click', function () {
@@ -134,7 +131,7 @@ module.exports.add = function () {
 		if (localStorage.currentVersion > 0) {
 			--localStorage.currentVersion;
 			projectHelpers.loadWork();
-			drawing.draw();
+//			drawing.draw();
 		} else {
 			footer.notify('Cannot undo from version 0.');
 		}
@@ -144,7 +141,7 @@ module.exports.add = function () {
 		if (localStorage.currentVersion - 1 < JSON.parse(localStorage.savedProjects).length) { // At least 2 less than the amount of history
 			++localStorage.currentVersion;
 			projectHelpers.loadWork();
-			drawing.draw();
+//			drawing.draw();
 		} else {
 			footer.notify('Cannot go past the last saved work.');
 		}
@@ -179,7 +176,7 @@ module.exports.add = function () {
 				var fileContent = reader.result;
 				projectHelpers.setProjects(projectHelpers.loadProjects(JSON.parse(fileContent)));
 				document.getElementById('import_input').value = ''; // Clear the input so that calls change event is called even when file name has not changed
-				drawing.draw();
+//				drawing.draw();
 			};
 
 			reader.readAsText(file); // Actually read the file

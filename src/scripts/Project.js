@@ -1,17 +1,13 @@
 var dateHelpers = require('./helpers/date-helpers'),
-	drawing = require('./project-canvas-draw'),
+	projectCanvas = require('./project-draw'),
 	dayHelpers = require('./helpers/day-helpers'),
 	projectHelpers = require('./helpers/project-helpers'),
 	footer = require('./footer'),
 	globals = require('./globals'),
 
-	projectCanvas = require('./helpers/project-canvas-helpers'),
-
 	assert = require('assert');
 
-var ctx = globals.ctx;
-
-var dayWidth = dayHelpers.dayWidth;
+var projectID = 0;
 
 function Project(args) {
 	this.name = args.name;
@@ -25,6 +21,9 @@ function Project(args) {
 
 	// Initialize variables
 	this.y = [];
+	this.projectID = projectID;
+
+	projectID++;
 }
 
 Project.prototype.loadDayLoad = function (inputDayLoad) {
@@ -96,62 +95,83 @@ Project.prototype.toHeight = function (load) {
 	return (load / 15) * globals.workUnitHeight * 15;
 };
 
-Project.prototype.draw = function (dayNo, offsetTop) {
-	assert(offsetTop > 0);
+Project.prototype.drawToCanvas = function (canvas, dayNo) {
+	if (this.load(dayNo) === 0) { // This day of the canvas has no work, and should be deleted
+		canvas.parentElement.removeChild(canvas);
+		return;
+	}
 
-	var selectedProject = projectCanvas.selectedProject();
-
-	var offsetLeft = dayHelpers.dayStart(dayNo);
+	var ctx = canvas.getContext('2d');
+	var columnWidth = projectCanvas.getColumnElement(dayNo).clientWidth;
 	var projectHeight = this.height(dayNo);
 
-	var relativeDayNo = this.relativeDayNo(dayNo);
+	canvas.height = projectHeight;
+	canvas.width = columnWidth * 0.85;
 
-	// Don't need to store x because it is dayStart(dayNo).
-	this.y[relativeDayNo] = offsetTop;
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	// Draws project rectangle
-	ctx.fillStyle = this.color;
-	ctx.fillRect(offsetLeft, offsetTop, dayHelpers.dayWidth(), projectHeight);
+	this.drawText(ctx, dayNo);
+	this.drawHoursDone(ctx, dayNo);
 
-	// Top and bottom project seperators
-	ctx.fillStyle = 'black';
-	ctx.fillRect(offsetLeft, offsetTop, dayHelpers.dayWidth(), globals.borderWidth);
-	ctx.fillRect(offsetLeft, offsetTop + projectHeight, dayHelpers.dayWidth(), globals.borderWidth);
-
-	this.drawText(projectHeight, offsetTop, offsetLeft, dayNo);
-
-	if (selectedProject && selectedProject.project == this) {
-		this.drawLadder(dayNo);
+	if (projectCanvas.selectedProject() && projectCanvas.selectedProject().project === this) {
+		this.drawLadder(ctx, dayNo);
 	}
-	this.drawHoursDone(dayNo);
-
-
-	offsetTop += projectHeight;
-
-	return offsetTop;
 };
 
-Project.prototype.drawText = function (projectHeight, offsetTop, offsetLeft, dayNo) {
+Project.prototype.drawText = function (ctx, dayNo) {
+	var projectHeight = ctx.canvas.clientHeight;
 	if (projectHeight >= globals.minimumWork) {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
-		ctx.fillText(this.name, offsetLeft + dayHelpers.dayWidth() / 2, offsetTop, dayHelpers.dayWidth());
+		ctx.font = '15px Arial';
+		ctx.fillText(this.name, ctx.canvas.clientWidth / 2, 0, ctx.canvas.clientWidth);
 		if (projectHeight >= globals.minimumWork * 2) {
 			ctx.textBaseline = 'bottom';
 			ctx.fillText(dateHelpers.workToTime(this.doneLoad(dayNo)) + '/' + dateHelpers.workToTime(this.load(dayNo)),
-				offsetLeft + dayHelpers.dayWidth() / 2, offsetTop + projectHeight, dayHelpers.dayWidth());
+				ctx.canvas.clientWidth / 2, projectHeight, ctx.canvas.clientWidth);
 		}
 	}
 };
 
-Project.prototype.drawLadder = function (dayNo) {
+Project.prototype.canvasWidth = function (ctx) {
+	return ctx.canvas.clientWidth;
+};
+
+Project.prototype.drawHoursDone = function (ctx, dayNo) {
+	var workDone = this.doneLoad(dayNo);
+	if (workDone === 0) return; // Exit if no hours to draw.
+	assert(workDone > 0);
+
+	var crossHeight = this.toHeight(workDone);
+	var crossWidth = this.canvasWidth(ctx);
+
+	ctx.beginPath();
+	ctx.moveTo(0, 0);
+	ctx.lineTo(crossWidth, crossHeight);
+	ctx.moveTo(0, crossHeight);
+	ctx.lineTo(crossWidth, 0);
+	ctx.closePath();
+	ctx.stroke();
+
+	if (workDone != this.load(dayNo)) {
+		ctx.beginPath();
+		ctx.setLineDash([2]);
+		ctx.moveTo(crossWidth, crossHeight);
+		ctx.lineTo(0, crossHeight);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.setLineDash([]);
+	}
+};
+
+Project.prototype.drawLadder = function (ctx, dayNo) {
 	ctx.fillStyle = 'red';
 	for (var i = 1; i < Math.ceil(this.load(dayNo) / 15); i++) { // Divide load by 15 to get 15 minute chunks
-		var x = dayHelpers.dayStart(dayNo);
-		var y = this.y[this.relativeDayNo(dayNo)] + i * globals.workUnitHeight * 15;
+		//		var x = dayHelpers.dayStart(dayNo);
+		var y = i * globals.workUnitHeight * 15;
 		var delimeterLength = i % 4 === 0 ? dayHelpers.dayWidth() : dayHelpers.dayWidth() / 10; // For every hour, draw across whole day.
 
-		ctx.fillRect(x, y, delimeterLength, globals.borderWidth);
+		ctx.fillRect(0, y, delimeterLength, globals.borderWidth);
 	}
 };
 
@@ -189,36 +209,8 @@ Project.prototype.size = function () {
 	return size;
 };
 
-Project.prototype.drawHoursDone = function (dayNo) {
-	var workDone = this.doneLoad(dayNo);
-	if (workDone === 0) return; // Exit if no hours to draw.
-	assert(workDone > 0);
-
-	var x = dayHelpers.dayStart(dayNo);
-	var y = this.y[this.relativeDayNo(dayNo)];
-	var crossHeight = this.toHeight(workDone);
-
-	ctx.beginPath();
-	ctx.moveTo(x, y);
-	ctx.lineTo(x + dayWidth(), y + crossHeight);
-	ctx.moveTo(x, y + crossHeight);
-	ctx.lineTo(x + dayWidth(), y);
-	ctx.closePath();
-	ctx.stroke();
-
-	if (workDone != this.load(dayNo)) {
-		ctx.beginPath();
-		ctx.setLineDash([2]);
-		ctx.moveTo(x + dayWidth(), y + crossHeight);
-		ctx.lineTo(x, y + crossHeight);
-		ctx.closePath();
-		ctx.stroke();
-		ctx.setLineDash([]);
-	}
-};
-
 Project.prototype.mouseLoad = function (dayNo, y) {
-	return (this.load(dayNo) * globals.workUnitHeight) - (y - this.y[this.relativeDayNo(dayNo)] - globals.headerCtx.canvas.clientHeight);
+	return (this.load(dayNo) * globals.workUnitHeight) - (y - globals.dayTitleHeight - globals.headerCtx.canvas.clientHeight);
 };
 
 Project.prototype.updateDayLoad = function (dayNo) {
@@ -284,12 +276,13 @@ Project.prototype.updateDayLoad = function (dayNo) {
 		}
 	}
 
+
 	clicked.previous = clickedPrevious;
 	clicked.current = clickedCurrent;
 
-	assert(this.test());
+	projectCanvas.draw();
 
-	drawing.draw();
+	assert(this.test());
 };
 
 Project.prototype.changeStart = function (newStart) {
@@ -391,7 +384,7 @@ Project.prototype.spread = function (start, end) {
 	}
 
 	projectHelpers.saveWork();
-	drawing.draw();
+	projectCanvas.draw();
 };
 
 Project.prototype.collapse = function (centerDayNo) {
@@ -405,7 +398,7 @@ Project.prototype.collapse = function (centerDayNo) {
 	this.dayLoad[this.relativeDayNo(centerDayNo)] = amountCollapse;
 
 	projectHelpers.saveWork();
-	drawing.draw();
+	projectCanvas.draw();
 };
 
 Project.prototype.changeWork = function (amount) {
@@ -430,7 +423,7 @@ Project.prototype.changeWork = function (amount) {
 					this.dayLoad[i] += amount; // Since amount is negative, we need to add it to dayLoad[i] to decrease dayLoad.
 				}
 				if (amount === 0) {
-					drawing.draw();
+					projectCanvas.draw();
 					return;
 				}
 			}
@@ -442,7 +435,7 @@ Project.prototype.changeWork = function (amount) {
 	}
 
 	projectHelpers.saveWork();
-	drawing.draw();
+	projectCanvas.draw();
 };
 
 Project.prototype.delete = function () {
@@ -453,7 +446,7 @@ Project.prototype.delete = function () {
 			projects.splice(i);
 		}
 	}
-	drawing.draw();
+//	drawing.draw();
 	footer.notify('Deleted ' + this.name);
 	projectHelpers.saveWork();
 };
