@@ -87,6 +87,10 @@ function timeToWork(string) {
 		}
 	}
 
+	if (hours < 0 && minutes > 0) {
+		minutes = -minutes;
+	}
+
 	return hours * 60 + minutes;
 }
 

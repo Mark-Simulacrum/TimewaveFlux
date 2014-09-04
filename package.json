@@ -4,7 +4,7 @@
     "url": "http://github.com/Mark-Simulacrum/TimewaveFlux/issues"
   },
   "scripts": {
-    "test": "node src/scripts/tests/tests.js | tap-spec"
+    "test": "gulp jshint && node tests/tests.js | tap-spec"
   },
   "repository": {
     "type": "git",
