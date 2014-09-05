@@ -119,7 +119,7 @@ Project.prototype.drawToCanvas = function (canvas, dayNo) {
 };
 
 Project.prototype.drawText = function (ctx, dayNo) {
-	var projectHeight = ctx.canvas.clientHeight;
+	var projectHeight = this.height(dayNo);
 	if (projectHeight >= globals.minimumWork) {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
