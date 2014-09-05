@@ -11,40 +11,45 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function getColumnElement(dayNo) {
-	var projectColumn = document.querySelector('.column[dayno="' + dayNo + '"]');
+	var column = document.querySelector('.column[dayno="' + dayNo + '"]');
 
-	if (!projectColumn) {
-		projectColumn = document.createElement('div');
-		projectColumn.classList.add('column');
-		projectColumn.setAttribute('dayNo', dayNo);
+	if (!column) {
+		column = document.createElement('div');
+		column.classList.add('column');
+		column.setAttribute('dayNo', dayNo);
 
 		if (dayNo < globals.now) {
-			projectColumn.classList.add('beforeNow');
+			column.classList.add('beforeNow');
 		}
 
 		var columnHeader = document.createElement('div');
 		columnHeader.classList.add('header');
 		columnHeader.innerHTML = dateHelpers.dateText(dayNo, true) + (globals.debug() ? ' - ' + dayNo : '');
 
-		projectColumn.appendChild(columnHeader);
+		column.appendChild(columnHeader);
+
+		var columnProjectContainer = document.createElement('div');
+		columnProjectContainer.classList.add('projectContainer');
+		column.appendChild(columnProjectContainer);
 
 		var prevDayProjectColumn = projectContainer.querySelector('.column[dayno="' + (dayNo - 1) + '"]');
 		var nextDayProjectColumn = projectContainer.querySelector('.column[dayno="' + (dayNo + 1) + '"]');
 
 		if (nextDayProjectColumn) {
-			projectContainer.insertBefore(projectColumn, nextDayProjectColumn);
+			projectContainer.insertBefore(column, nextDayProjectColumn);
 		} else if (prevDayProjectColumn) {
-			insertAfter(projectColumn, prevDayProjectColumn);
+			insertAfter(column, prevDayProjectColumn);
 		} else if (projectContainer.innerHTML === '') {
-			projectContainer.appendChild(projectColumn);
+			projectContainer.appendChild(column);
 		} else {
-			projectContainer.insertBefore(projectColumn, projectContainer.querySelector('.column:first-child'));
+			projectContainer.insertBefore(column, projectContainer.querySelector('.column:first-child'));
 		}
 	}
 
-	projectColumn.style.width = 100 / globals.daysPerPage() + '%';
+	column.style.width = 100 / globals.daysPerPage() + '%';
+	column.querySelector('.projectContainer').style.height = column.clientHeight - column.querySelector('.header').clientHeight + 'px';
 
-	return projectColumn;
+	return column;
 }
 
 function getProjectCanvas(dayNo, project) {
@@ -64,7 +69,7 @@ function getProjectCanvas(dayNo, project) {
 			project.drawToCanvas(projectCanvas, dayNo);
 		}, false);
 
-		column.appendChild(projectCanvas);
+		column.querySelector('.projectContainer').appendChild(projectCanvas);
 
 		projectCanvas.style.backgroundColor = project.color;
 	}
@@ -84,8 +89,7 @@ function drawProjects(dayNo) {
 
 			validProjectIDs.push(project.projectID);
 
-			var canvas = getProjectCanvas(dayNo, project);
-			project.drawToCanvas(canvas, dayNo);
+			project.drawToCanvas(getProjectCanvas(dayNo, project), dayNo);
 		}
 	}
 
@@ -108,7 +112,7 @@ function draw() {
 
 	for (var i = 0; i < columns.length; i++) {
 		var column = columns[i];
-		var columnDayNo = Number(columns[i].getAttribute('dayno'));
+		var columnDayNo = Number(column.getAttribute('dayno'));
 		if (columnDayNo < globals.firstDay() || columnDayNo >= globals.firstDay() + globals.daysPerPage())
 			column.parentElement.removeChild(column);
 	}
