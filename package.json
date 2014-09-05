@@ -15,6 +15,7 @@
   "devDependencies": {
     "browser-filesaver": "^1.0.0",
     "browserify": "^5.10.0",
+    "gulp": "^3.8.7",
     "gulp-autoprefixer": "0.0.10",
     "gulp-ignore": "^1.2.0",
     "gulp-jshint": "^1.8.4",
