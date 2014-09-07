@@ -21,6 +21,8 @@ gulp.task('browserify', function () {
 		debug: true
 	});
 
+	bundler.plugin('minifyify', {map: 'bundle.map.json', output: 'build/bundle.map.json'});
+
 	var bundle = function () {
 		// Log when bundling starts
 		bundleLogger.start();
