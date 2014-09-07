@@ -42,7 +42,7 @@ function loadProjects(savedProjects) {
 	var i;
 	if (savedProjects === undefined || savedProjects === null || savedProjects.length === 0) { // Load projects from configuration
 		var request = new XMLHttpRequest();
-		request.open('GET', window.location.host + window.location.pathname + 'ProjectConfig.json', false);
+		request.open('GET', 'http://' + window.location.host + window.location.pathname + 'ProjectConfig.json', false);
 		request.send();
 		savedProjects = JSON.parse(request.responseText);
 		for (i = 0; i < savedProjects.length; i++) {
