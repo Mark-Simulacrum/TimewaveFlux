@@ -7,6 +7,9 @@ gulp.task('webpack', function (callback) {
 	// modify some webpack config options
 	var myConfig = Object.create(webpackConfig);
 	myConfig.plugins = (myConfig.plugins || []).concat(
+		new webpack.DefinePlugin({
+			PRODUCTION: true
+		}),
 		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin()
 	);

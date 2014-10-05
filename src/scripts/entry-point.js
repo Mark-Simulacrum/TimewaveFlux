@@ -1,4 +1,9 @@
-require('../css/stylesheet.scss');
+if (PRODUCTION) {
+	require('stylesheet.scss');
+} else {
+	require('../stylesheet.scss');
+}
+
 require('helpers/pollyfill');
 require('helpers/project-helpers').loadWork();
 require('event-listeners').add();

@@ -1,3 +1,4 @@
+var webpack = require('webpack');
 module.exports = {
 	entry: './src/scripts/entry-point.js',
 	output: {
@@ -18,7 +19,9 @@ module.exports = {
 			'src/scripts'
 		]
 	},
-	node: {
-		__filename: true
-	}
+	plugins: [
+		new webpack.DefinePlugin({
+			PRODUCTION: false
+		})
+	]
 };
