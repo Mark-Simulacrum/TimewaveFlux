@@ -18,7 +18,8 @@
 
 		// Browser definitions
 		"confirm",
-		"console"
+		"console",
+		"PRODUCTION"
 	],
 
 	"forin": true,
