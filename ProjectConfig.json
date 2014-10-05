@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Project #1",
+        "customer_name": "Unknown Joe",
+        "deadline": "2014/08/02",
+        "color": "lightblue",
+        "dayLoad": {
+            "2014/08/02": 25
+        },
+        "workDone": 0
+    },
+    {
+        "name": "Project #2",
+        "customer_name": "Unknown Joe",
+        "deadline": "2014/08/02",
+        "color": "#BADA55",
+        "dayLoad": {
+            "2014/08/02": 15
+        },
+        "workDone": 0
+    },
+    {
+        "name": "Project #3",
+        "customer_name": "Unknown Joe",
+        "deadline": "2014/08/04",
+        "color": "cyan",
+        "dayLoad": {
+            "2014/08/03": 15,
+            "2014/08/04": 20
+        },
+        "workDone": 0
+    },
+    {
+        "name": "Project #4",
+        "customer_name": "Unknown Joe",
+        "deadline": "2014/08/06",
+        "color": "rgba(0,0,0,0.2)",
+        "dayLoad": {
+            "2014/08/03": 30,
+            "2014/08/04": 0,
+            "2014/08/05": 20,
+            "2014/08/06": 45
+        },
+        "workDone": 0
+    },
+    {
+        "name": "Project #5",
+        "customer_name": "Unknown Joe",
+        "deadline": "2014/08/11",
+        "color": "#BADA55",
+        "dayLoad": {
+            "2014/08/05": 0,
+            "2014/08/06": 0,
+            "2014/08/07": 420,
+            "2014/08/08": 0,
+            "2014/08/09": 30,
+            "2014/08/10": 0,
+            "2014/08/11": 0
+        },
+        "workDone": 0
+    }
+]

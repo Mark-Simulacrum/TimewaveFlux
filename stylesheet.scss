@@ -1,0 +1,171 @@
+* {
+	box-sizing: border-box;
+}
+
+html {
+	font-family: Arial;
+}
+
+body {
+	margin: 0;
+	height: 100vh;
+
+	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
+}
+
+.columns {
+	display: flex;
+	flex: 1;
+	overflow-y: inherit;
+
+	position: relative;
+	$borderColor: #aaa;
+	width: 100%;
+	border-top: 1px solid $borderColor;
+	border-bottom: 1px solid $borderColor;
+
+	.column {
+		flex: 1;
+		border-right: 1px solid $borderColor;
+		overflow-y: auto;
+
+		&.beforeNow {
+			background-color: rgba(84, 84, 84, 0.1);
+		}
+
+		&.withinSelectedProject {
+			background-color: hsla(100, 71%, 55%, 0.18);
+		}
+
+		.header {
+			text-align: center;
+			border-bottom: 1px solid $borderColor;
+		}
+
+		.projectContainer {
+			overflow: auto;
+		}
+
+		.project {
+			border: 1px solid $borderColor;
+			border-radius: 5px;
+			margin: 0.5em auto;
+		}
+	}
+}
+
+footer {
+	padding: 0 1em;
+	display: table-cell;
+
+	section {
+		display: table;
+		$rightMargin: 0.5em;
+		position: relative;
+		width: 33%;
+		height: 140px;
+		padding: 0.2em $rightMargin 0.2em;
+		float: left;
+		overflow: auto;
+
+		&:nth-child(1) {
+			.noWrap {
+				white-space: normal;
+				display: table-row;
+				width: 100%;
+			}
+		}
+
+		&:nth-child(2) {
+			border-left: 1px solid black;
+			border-right: 1px solid black;
+		}
+
+		&:nth-child(3)
+		{
+			display: table-cell;
+		}
+
+		&.notifications-list {
+			padding-left: 0.5em;
+			overflow-y: auto;
+			white-space: normal;
+			line-height: 1.5em;
+			.notification {
+				margin: 0;
+				&.counter:before {
+					content: attr(data-count);
+					padding: 0.2em;
+					margin-right: 0.5em;
+					background-color: rgb(128, 151, 189);
+					height: 1em;
+					vertical-align: middle;
+					border-radius: 0.5em;
+					color: white;
+				}
+			}
+		}
+		.projectMod {
+			display: table-cell;
+			float: right;
+		}
+		.center {
+			margin: 0 auto;
+			text-align: center;
+		}
+		.right {
+			float: right;
+		}
+
+		#version {
+			position: absolute;
+			bottom: 0;
+			right: $rightMargin;
+		}
+	}
+}
+
+input.date {
+	width: 12ex;
+	text-align: center;
+}
+
+input[type=file] {
+	display: none;
+}
+
+#day_amount {
+	width: 3em;
+}
+
+.noSelect {
+	user-select: none;
+}
+
+.noWrap {
+	white-space: nowrap;
+}
+
+#tooltip {
+	display: none;
+	background-color: black;
+	color: white;
+	font-size: 0.8em;
+	position: absolute;
+	margin: 0.3em; // So that top/left: #px actually sets the top/left sides
+ 	padding: 0.3em;
+	border-radius: 0.3em;
+
+	transform: translate(-50%);
+}
+
+canvas {
+	display: block;
+}
+
+#main-canvas {
+	height: auto;
+	width: 100%;
+}
