@@ -2,37 +2,34 @@
 	box-sizing: border-box;
 }
 
-@mixin cover-all {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-}
-
 html {
-	@include cover-all;
 	font-family: Arial;
 }
 
 body {
-	@include cover-all;
 	margin: 0;
+	height: 100vh;
+
+	display: flex;
+	flex-direction: column;
+	overflow-y: hidden;
 }
 
 .columns {
+	display: flex;
+	flex: 1;
+	overflow-y: inherit;
+
 	position: relative;
-	user-select: none;
 	$borderColor: #aaa;
 	width: 100%;
 	border-top: 1px solid $borderColor;
 	border-bottom: 1px solid $borderColor;
 
 	.column {
+		flex: 1;
 		border-right: 1px solid $borderColor;
-		height: 100%;
-		float: left;
-		overflow: hidden;
+		overflow-y: auto;
 
 		&.beforeNow {
 			background-color: rgba(84, 84, 84, 0.1);
@@ -60,11 +57,6 @@ body {
 }
 
 footer {
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
-
 	padding: 0 1em;
 	display: table-cell;
 

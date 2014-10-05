@@ -1,6 +1,6 @@
-var globals = require('./globals');
-var dateHelpers = require('./helpers/date-helpers');
-var dayHelpers = require('./helpers/day-helpers');
+var globals = require('globals');
+var dateHelpers = require('helpers/date-helpers');
+var dayHelpers = require('helpers/day-helpers');
 
 var headerCtx = globals.headerCtx;
 var borderWidth = globals.borderWidth;

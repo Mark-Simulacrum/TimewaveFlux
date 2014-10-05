@@ -46,9 +46,6 @@ function getColumnElement(dayNo) {
 		}
 	}
 
-	column.style.width = 100 / globals.daysPerPage() + '%';
-	column.querySelector('.projectContainer').style.height = column.clientHeight - column.querySelector('.header').clientHeight + 'px';
-
 	return column;
 }
 
@@ -105,16 +102,14 @@ function drawProjects(dayNo) {
 function draw() {
 	console.time('drawing...');
 
-	document.querySelector('.columns').style.height =
-		document.body.clientHeight - document.querySelector('footer').clientHeight - document.querySelector('#header-canvas').clientHeight + 'px';
-
 	var columns = document.querySelectorAll('.columns .column');
 
 	for (var i = 0; i < columns.length; i++) {
 		var column = columns[i];
 		var columnDayNo = Number(column.getAttribute('dayno'));
-		if (columnDayNo < globals.firstDay() || columnDayNo >= globals.firstDay() + globals.daysPerPage())
+		if (columnDayNo < globals.firstDay() || columnDayNo >= globals.firstDay() + globals.daysPerPage()) {
 			column.parentElement.removeChild(column);
+		}
 	}
 
 	for (var dayNo = globals.firstDay(); dayNo < globals.firstDay() + globals.daysPerPage(); dayNo++) {

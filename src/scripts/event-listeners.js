@@ -1,16 +1,13 @@
-var globals = require('./globals');
-var dateHelpers = require('./helpers/date-helpers');
-var dayHelpers = require('./helpers/day-helpers');
-var projectCanvas = require('./project-draw');
-var projectHelpers = require('./helpers/project-helpers');
-var footer = require('./footer');
-
-var timeToWork = dateHelpers.timeToWork;
+var globals = require('globals');
+var dateHelpers = require('helpers/date-helpers');
+var dayHelpers = require('helpers/day-helpers');
+var projectCanvas = require('project-draw');
+var projectHelpers = require('helpers/project-helpers');
+var footer = require('footer');
+var saveAs = require('browser-filesaver');
 
 var updateFirstDay = dayHelpers.updateFirstDay;
 var updateDaysPerPage = dayHelpers.updateDaysPerPage;
-
-var saveAs = require('browser-filesaver');
 
 var fromMoment = dateHelpers.fromMoment;
 
@@ -25,7 +22,7 @@ module.exports.add = function () {
 		if (projectInput.value === 0 || !projectInput.value) return;
 
 		var selectedProject = projectCanvas.selectedProject();
-		var inputWorkUnits = timeToWork(projectInput.value);
+		var inputWorkUnits = dateHelpers.timeToWork(projectInput.value);
 
 		if (inputWorkUnits < 0 && -inputWorkUnits > selectedProject.project.workDone) {
 			footer.notify('Input of ' + projectInput.value + ' is subtracting too much from the current amount of finished work. Please change.');
@@ -62,7 +59,7 @@ module.exports.add = function () {
 		if (projectInput.value === 0 || !projectInput.value) return;
 		var selectedProject = projectCanvas.selectedProject();
 
-		var inputWorkUnits = timeToWork(projectInput.value);
+		var inputWorkUnits = dateHelpers.timeToWork(projectInput.value);
 
 		selectedProject.project.changeWork(inputWorkUnits);
 	}, false);

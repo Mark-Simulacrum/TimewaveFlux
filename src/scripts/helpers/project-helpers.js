@@ -1,11 +1,11 @@
 var projects = [];
 
-var globals = require('../globals');
-var Project = require('../Project').Project;
+var globals = require('globals');
+var Project = require('Project').Project;
 
-var dayHelpers = require('./day-helpers');
-var dateHelpers = require('./date-helpers');
-var footer = require('../footer');
+var dayHelpers = require('helpers/day-helpers');
+var dateHelpers = require('helpers/date-helpers');
+var footer = require('footer');
 
 function setProjects(newProjects) {
 	projects = newProjects;
